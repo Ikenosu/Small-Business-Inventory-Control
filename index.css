@@ -1,0 +1,18 @@
+:root{
+    --sidebarcolor: #ffffff;
+    --bodycolor: #ffffff;
+}
+
+body{
+    height: 100vh;
+    background: var(--bodycolor);
+}
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    background: var(--sidebarcolor);
+}
