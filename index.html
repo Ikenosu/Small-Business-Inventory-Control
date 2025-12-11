@@ -16,30 +16,22 @@
         </div>
         <div class="brand-title">Inventory Pro</div>
         <div class="brand-subtitle">Manage your business inventory with ease</div>
-
         <div class="card">
             <div class="card-title">Welcome Back</div>
             <div class="card-description">Sign in to your account to continue</div>
-
             <div id="signinMessage" class="message"></div>
-
             <form id="signinForm">
                 <div class="form-group">
                     <label for="signinEmail">Email</label>
                     <input type="email" id="signinEmail" placeholder="yourname@email.com" required>
                 </div>
-
                 <div class="form-group">
                     <label for="signinPassword">Password</label>
                     <input type="password" id="signinPassword" placeholder="••••••••" required>
                 </div>
-
                 <button type="submit" class="btn-primary">Sign In</button>
             </form>
-
-            <div class="footer-text">
-                Don't have an account? <a href="#" id="goToSignup">Sign Up</a>
-            </div>
+            <div class="footer-text">Don't have an account? <a href="#" id="goToSignup">Sign Up</a></div>
         </div>
     </div>
 
@@ -52,45 +44,34 @@
         </div>
         <div class="brand-title">Inventory Pro</div>
         <div class="brand-subtitle">Manage your business inventory with ease</div>
-
         <div class="card">
             <div class="card-title">Create Account</div>
             <div class="card-description">Sign up to get started with your inventory system</div>
-
             <div id="signupMessage" class="message"></div>
-
             <form id="signupForm">
                 <div class="form-group">
                     <label for="fullName">Full Name</label>
                     <input type="text" id="fullName" placeholder="John Smith" required>
                 </div>
-
                 <div class="form-group">
                     <label for="businessName">Business Name</label>
                     <input type="text" id="businessName" placeholder="Smith & Co" required>
                 </div>
-
                 <div class="form-group">
                     <label for="signupEmail">Email</label>
                     <input type="email" id="signupEmail" placeholder="yourname@email.com" required>
                 </div>
-
                 <div class="form-group">
                     <label for="signupPassword">Password</label>
                     <input type="password" id="signupPassword" placeholder="••••••••" required>
                 </div>
-
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" placeholder="••••••••" required>
                 </div>
-
                 <button type="submit" class="btn-primary">Sign Up</button>
             </form>
-
-            <div class="footer-text">
-                Already have an account? <a href="#" id="goToSignin">Sign In</a>
-            </div>
+            <div class="footer-text">Already have an account? <a href="#" id="goToSignin">Sign In</a></div>
         </div>
     </div>
 
@@ -101,7 +82,6 @@
                 <h2>Inventory Pro</h2>
                 <p id="sidebarBusiness">Smith & Co</p>
             </div>
-
             <div class="user-info">
                 <div class="user-avatar" id="sidebarAvatar">JS</div>
                 <div class="user-details">
@@ -109,7 +89,6 @@
                     <div class="user-role">Owner</div>
                 </div>
             </div>
-
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item" data-page="dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -141,7 +120,6 @@
                     Profile
                 </a>
             </nav>
-
             <button class="btn-logout" id="logoutBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -154,12 +132,11 @@
 
         <div class="main-content">
             <!-- Profile Page -->
-            <div id="profileContent" class="content-page">
+            <div id="profileContent" class="content-page active">
                 <div class="content-header">
                     <h1>Profile Settings</h1>
                     <p>Manage your account settings</p>
                 </div>
-
                 <div class="profile-card">
                     <div class="profile-header">
                         <div class="profile-avatar" id="profileAvatar">JS</div>
@@ -169,7 +146,6 @@
                             <p class="business-name" id="profileBusiness">Smith & Co</p>
                         </div>
                     </div>
-
                     <div class="stats-section">
                         <h3>Account Stats</h3>
                         <div class="stats-grid">
@@ -187,7 +163,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="settings-grid">
                         <div class="settings-section">
                             <h3>Account</h3>
@@ -232,7 +207,6 @@
                                 </svg>
                             </div>
                         </div>
-
                         <div class="settings-section">
                             <h3>Settings</h3>
                             <div class="setting-item clickable" id="notificationBtn">
@@ -242,7 +216,7 @@
                                 </svg>
                                 <div>
                                     <div class="setting-title">Notifications</div>
-                                    <div class="setting-value">Enabled</div>
+                                    <div class="setting-value" id="notificationStatus">Enabled</div>
                                 </div>
                                 <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -255,7 +229,7 @@
                                 </svg>
                                 <div>
                                     <div class="setting-title">Security</div>
-                                    <div class="setting-value">Strong</div>
+                                    <div class="setting-value" id="securityStatus">Medium</div>
                                 </div>
                                 <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -275,7 +249,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="support-section">
                         <h3>Support</h3>
                         <div class="setting-item clickable" id="helpCenterBtn">
@@ -289,13 +262,12 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="version">Version 1.0.0</div>
                 </div>
             </div>
 
-            <!-- Dashboard Page -->
-            <div id="dashboardContent" class="content-page" style="display: none;">
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="content-page">
                 <div class="content-header">
                     <h1>Dashboard</h1>
                     <p>Overview of your inventory system</p>
@@ -312,8 +284,8 @@
                 </div>
             </div>
 
-            <!-- Inventory Page -->
-            <div id="inventoryContent" class="content-page" style="display: none;">
+            <!-- Inventory Content -->
+            <div id="inventoryContent" class="content-page">
                 <div class="content-header">
                     <h1>Inventory Management</h1>
                     <p>Manage your products and stock levels</p>
@@ -327,8 +299,8 @@
                 </div>
             </div>
 
-            <!-- Reports Page -->
-            <div id="reportsContent" class="content-page" style="display: none;">
+            <!-- Reports Content -->
+            <div id="reportsContent" class="content-page">
                 <div class="content-header">
                     <h1>Reports</h1>
                     <p>View your business analytics and reports</p>
@@ -345,7 +317,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
@@ -397,7 +368,7 @@
                         <div class="toggle-desc">Get notified when items are low</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="lowStockAlert" checked>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -407,7 +378,7 @@
                         <div class="toggle-desc">Get notified when items unavailable</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="outOfStockAlert" checked>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -417,7 +388,7 @@
                         <div class="toggle-desc">Get notified when products are added</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox">
+                        <input type="checkbox" id="newProductAlert">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -427,7 +398,7 @@
                         <div class="toggle-desc">Get notified on price updates</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox">
+                        <input type="checkbox" id="priceChangeAlert">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -438,7 +409,7 @@
                         <div class="toggle-desc">Receive notifications via email</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="emailNotifications" checked>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -448,13 +419,13 @@
                         <div class="toggle-desc">Receive notifications via device</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox">
+                        <input type="checkbox" id="pushNotifications">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-primary full-width">Save Settings</button>
+                <button type="button" class="btn-primary full-width" id="saveNotificationSettings">Save Settings</button>
             </div>
         </div>
     </div>
@@ -471,7 +442,7 @@
                 <button class="modal-close" data-modal="securityModal">&times;</button>
             </div>
             <form id="securityForm">
-                <h4>Change Password</h4>
+                <h4 style="padding: 24px 24px 0; margin: 0; font-size: 14px; font-weight: 600;">Change Password</h4>
                 <div class="form-group">
                     <label for="currentPassword">Current Password</label>
                     <input type="password" id="currentPassword" placeholder="Enter current password">
@@ -485,15 +456,14 @@
                     <input type="password" id="confirmNewPassword" placeholder="Must be at least 6 characters">
                 </div>
                 <button type="submit" class="btn-primary full-width" style="margin-bottom: 20px;">Update Password</button>
-                
-                <h4>Additional Security</h4>
+                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Additional Security</h4>
                 <div class="toggle-item">
                     <div>
                         <div class="toggle-title">Two-Factor Authentication</div>
                         <div class="toggle-desc">Add extra layer of security</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox">
+                        <input type="checkbox" id="twoFactorAuth">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -503,18 +473,18 @@
                         <div class="toggle-desc">Login using your fingerprint</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox">
+                        <input type="checkbox" id="biometricLogin">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                <div class="security-status">
+                <div class="security-status" id="securityStatusBox">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
                     <div>
-                        <div class="status-title">Security Status: Strong</div>
-                        <div class="status-desc">Your account is well-protected</div>
+                        <div class="status-title" id="securityStatusTitle">Security Status: Medium</div>
+                        <div class="status-desc" id="securityStatusDesc">Enable 2FA for stronger protection</div>
                     </div>
                 </div>
             </form>
@@ -536,43 +506,39 @@
                 <h4>Regional Settings</h4>
                 <div class="form-group">
                     <label>Language</label>
-                    <select class="select-input">
-                        <option>English</option>
-                        <option>Malay</option>
-                        <option>Chinese</option>
+                    <select class="select-input" id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="ms">Malay</option>
+                        <option value="zh">Chinese</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Currency</label>
-                    <select class="select-input">
-                        <option>MYR (RM)</option>
-                        <option>USD ($)</option>
-                        <option>SGD (S$)</option>
+                    <select class="select-input" id="currencySelect">
+                        <option value="MYR">MYR (RM)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="SGD">SGD (S$)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Date Format</label>
-                    <select class="select-input">
-                        <option>MM / DD / YYYY</option>
-                        <option>DD / MM / YYYY</option>
-                        <option>YYYY / MM / DD</option>
+                    <select class="select-input" id="dateFormatSelect">
+                        <option value="MM/DD/YYYY">MM / DD / YYYY</option>
+                        <option value="DD/MM/YYYY">DD / MM / YYYY</option>
+                        <option value="YYYY/MM/DD">YYYY / MM / DD</option>
                     </select>
                 </div>
                 <h4>Appearance</h4>
                 <div class="form-group">
                     <label>Theme</label>
                     <div class="radio-group">
-                        <label class="radio-item">
+                        <label class="radio-item selected" data-theme="light">
                             <input type="radio" name="theme" value="light" checked>
                             <span>Light</span>
                         </label>
-                        <label class="radio-item">
+                        <label class="radio-item" data-theme="dark">
                             <input type="radio" name="theme" value="dark">
                             <span>Dark</span>
-                        </label>
-                        <label class="radio-item">
-                            <input type="radio" name="theme" value="auto">
-                            <span>Auto (System)</span>
                         </label>
                     </div>
                 </div>
@@ -583,13 +549,13 @@
                         <div class="toggle-desc">Show alerts on main dashboard</div>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="dashboardStockAlerts" checked>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-primary full-width">Save Preferences</button>
+                <button type="button" class="btn-primary full-width" id="savePreferences">Save Preferences</button>
             </div>
         </div>
     </div>
@@ -607,48 +573,46 @@
                 <button class="modal-close" data-modal="helpCenterModal">&times;</button>
             </div>
             <div class="help-content">
-                <div class="search-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input type="text" placeholder="Search for help...">
-                </div>
                 <h4>Quick Links</h4>
-                <div class="help-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <div>
+                <div class="help-item" id="gettingStartedGuide">
+                    <div class="help-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <div class="help-item-content">
                         <div class="help-title">Getting Started Guide</div>
                         <div class="help-desc">Learn the basics of Inventory Pro</div>
                     </div>
                 </div>
-                <div class="help-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    <div>
+                <div class="help-item" id="contactSupportBtn">
+                    <div class="help-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="help-item-content">
                         <div class="help-title">Contact Support</div>
                         <div class="help-desc">Get help from our team</div>
                     </div>
                 </div>
-                <div class="help-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                    </svg>
-                    <div>
+                <div class="help-item" id="emailUsBtn">
+                    <div class="help-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="help-item-content">
                         <div class="help-title">Email Us</div>
                         <div class="help-desc">support@inventorypro.com</div>
                     </div>
                 </div>
-                <h4>More Info</h4>
                 <div class="help-info">
                     <div class="info-title">Still need help?</div>
-                    <div class="info-desc">Contact our support team and we'll assist you</div>
-                    <button class="btn-primary full-width">
+                    <div class="info-desc">Contact our support team and we'll assist you with any questions or issues</div>
+                    <button class="btn-primary" id="contactSupportButton">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
@@ -657,7 +621,7 @@
                 </div>
                 <div class="help-footer">
                     <p>© 2025 Inventory Pro</p>
-                    <p>2025 All Rights Reserved</p>
+                    <p>All Rights Reserved</p>
                 </div>
             </div>
         </div>
@@ -687,20 +651,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts.js"></script>
 </body>
-</html>                    </div>
-
-                <button type="submit" class="btn-primary">Sign In</button>
-            </form>
-
-            <div class="footer-text">
-                Don't have an account? <a href="#" id="goToSignup">Sign Up</a>
-            </div>
-        </div>
-
-        <!-- Signup Form -->
-        <div id="signupForm" class="auth-form" style="display: none;">
-            <h2>Create an Account</h2>
-            <form id="signupFormElement">
-                <div class="form-group">
-                    <label for="signupFullName">Full Name</label>
-                    <input type="text" id="signupFullName" placeholder="John Smith" required>
+</html>
