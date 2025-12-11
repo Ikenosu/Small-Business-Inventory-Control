@@ -441,21 +441,24 @@
                 <h3>Security Settings</h3>
                 <button class="modal-close" data-modal="securityModal">&times;</button>
             </div>
-            <form id="securityForm">
-                <h4 style="padding: 24px 24px 0; margin: 0; font-size: 14px; font-weight: 600;">Change Password</h4>
-                <div class="form-group">
-                    <label for="currentPassword">Current Password</label>
-                    <input type="password" id="currentPassword" placeholder="Enter current password">
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">New Password</label>
-                    <input type="password" id="newPassword" placeholder="Enter new password">
-                </div>
-                <div class="form-group">
-                    <label for="confirmNewPassword">Confirm New Password</label>
-                    <input type="password" id="confirmNewPassword" placeholder="Must be at least 6 characters">
-                </div>
-                <button type="submit" class="btn-primary full-width" style="margin-bottom: 20px;">Update Password</button>
+            <div class="password-section">
+                <h4>Change Password</h4>
+                <form id="securityForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password (min 6 characters)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" required>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Update Password</button>
+                </form>
+            </div>
                 <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Additional Security</h4>
                 <div class="toggle-item">
                     <div>
@@ -464,16 +467,6 @@
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="twoFactorAuth">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-item">
-                    <div>
-                        <div class="toggle-title">Biometric Login</div>
-                        <div class="toggle-desc">Login using your fingerprint</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="biometricLogin">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -488,6 +481,9 @@
                     </div>
                 </div>
             </form>
+            <div class="modal-actions">
+                <button type="button" class="btn-primary full-width" id="saveSecuritySettings">Save Security Settings</button>
+            </div>
         </div>
     </div>
 
@@ -506,18 +502,14 @@
                 <h4>Regional Settings</h4>
                 <div class="form-group">
                     <label>Language</label>
-                    <select class="select-input" id="languageSelect">
+                    <select class="select-input" id="languageSelect" disabled>
                         <option value="en">English</option>
-                        <option value="ms">Malay</option>
-                        <option value="zh">Chinese</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Currency</label>
-                    <select class="select-input" id="currencySelect">
+                    <select class="select-input" id="currencySelect" disabled>
                         <option value="MYR">MYR (RM)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="SGD">SGD (S$)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -531,16 +523,28 @@
                 <h4>Appearance</h4>
                 <div class="form-group">
                     <label>Theme</label>
-                    <div class="radio-group">
-                        <label class="radio-item selected" data-theme="light">
-                            <input type="radio" name="theme" value="light" checked>
-                            <span>Light</span>
-                        </label>
-                        <label class="radio-item" data-theme="dark">
-                            <input type="radio" name="theme" value="dark">
-                            <span>Dark</span>
-                        </label>
-                    </div>
+                    <div class="theme-selector">
+    <button type="button" class="theme-option active" data-theme="light">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span>Light</span>
+    </button>
+    <button type="button" class="theme-option" data-theme="dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span>Dark</span>
+    </button>
+</div>
                 </div>
                 <h4>Display Options</h4>
                 <div class="toggle-item">
@@ -575,17 +579,17 @@
             <div class="help-content">
                 <h4>Quick Links</h4>
                 <div class="help-item" id="gettingStartedGuide">
-                    <div class="help-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                    </div>
-                    <div class="help-item-content">
-                        <div class="help-title">Getting Started Guide</div>
-                        <div class="help-desc">Learn the basics of Inventory Pro</div>
-                    </div>
-                </div>
+    <div class="help-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+    </div>
+    <div>
+        <div class="help-title">Getting Started Guide</div>
+        <div class="help-desc">Learn the basics of Inventory Pro</div>
+    </div>
+</div>
                 <div class="help-item" id="contactSupportBtn">
                     <div class="help-item-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
