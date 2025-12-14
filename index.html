@@ -90,7 +90,7 @@
                 </div>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item" data-page="dashboard">
+                <a href="#" class="nav-item active" data-page="dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -112,7 +112,7 @@
                     </svg>
                     Reports
                 </a>
-                <a href="#" class="nav-item active" data-page="profile">
+                <a href="#" class="nav-item" data-page="profile">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
@@ -132,7 +132,7 @@
 
         <div class="main-content">
             <!-- Profile Page -->
-            <div id="profileContent" class="content-page active">
+            <div id="profileContent" class="content-page">
                 <div class="content-header">
                     <h1>Profile Settings</h1>
                     <p>Manage your account settings</p>
@@ -267,7 +267,7 @@
             </div>
 
             <!-- Dashboard Content -->
-            <div id="dashboardContent" class="content-page">
+            <div id="dashboardContent" class="content-page active">
                 <div class="content-header">
                     <h1>Dashboard</h1>
                     <p>Overview of your inventory system</p>
@@ -286,18 +286,122 @@
 
             <!-- Inventory Content -->
             <div id="inventoryContent" class="content-page">
-                <div class="content-header">
-                    <h1>Inventory Management</h1>
-                    <p>Manage your products and stock levels</p>
-                </div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"></path>
-                    </svg>
-                    <h3>No Products Yet</h3>
-                    <p>Start adding products to your inventory</p>
-                </div>
+    <div class="content-header">
+        <h1>Inventory Management</h1>
+        <p>Manage your products and stock levels</p>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="inventory-topbar">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search products..." id="inventorySearch">
+        </div>
+
+        <div class="top-actions">
+            <button class="filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="21" x2="4" y2="14"></line>
+                    <line x1="4" y1="10" x2="4" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="3"></line>
+                    <line x1="20" y1="21" x2="20" y2="16"></line>
+                    <line x1="20" y1="12" x2="20" y2="3"></line>
+                </svg>
+            </button>
+
+            <button class="btn-primary add-btn">+ Add New</button>
+        </div>
+    </div>
+
+    <p class="product-count">6 products</p>
+
+    <!-- Product Cards Grid -->
+    <div class="inventory-grid">
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                Wireless Mouse <span class="badge in-stock">In Stock</span>
             </div>
+            <div class="product-row">SKU: WM-001</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>45</div>
+                <div><strong>Price</strong><br>$29.99</div>
+                <div><strong>Category</strong><br>Electronics</div>
+            </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                Office Chair <span class="badge in-stock">In Stock</span>
+            </div>
+            <div class="product-row">SKU: OC-002</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>8</div>
+                <div><strong>Price</strong><br>$199.99</div>
+                <div><strong>Category</strong><br>Furniture</div>
+            </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                USB Cable <span class="badge low-stock">Low Stock</span>
+            </div>
+            <div class="product-row">SKU: UC-003</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>3</div>
+                <div><strong>Price</strong><br>$9.99</div>
+                <div><strong>Category</strong><br>Electronics</div>
+            </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                Notebook <span class="badge in-stock">In Stock</span>
+            </div>
+            <div class="product-row">SKU: NB-004</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>120</div>
+                <div><strong>Price</strong><br>$4.99</div>
+                <div><strong>Category</strong><br>Stationery</div>
+            </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                Desk Lamp <span class="badge out-stock">Out of Stock</span>
+            </div>
+            <div class="product-row">SKU: DL-005</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>0</div>
+                <div><strong>Price</strong><br>$39.99</div>
+                <div><strong>Category</strong><br>Furniture</div>
+            </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-card">
+            <div class="product-title">
+                Keyboard <span class="badge in-stock">In Stock</span>
+            </div>
+            <div class="product-row">SKU: KB-006</div>
+            <div class="product-info">
+                <div><strong>Quantity</strong><br>32</div>
+                <div><strong>Price</strong><br>$79.99</div>
+                <div><strong>Category</strong><br>Electronics</div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
             <!-- Reports Content -->
             <div id="reportsContent" class="content-page">

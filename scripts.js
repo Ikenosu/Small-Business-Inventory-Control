@@ -41,7 +41,7 @@ function showDashboard() {
     document.getElementById('signinPage').style.display = 'none';
     document.getElementById('signupPage').style.display = 'none';
     document.getElementById('dashboardPage').style.display = 'flex';
-    showPage('profile');
+    showPage('dashboard');
 }
 
 // Dashboard Page Navigation
