@@ -1,6 +1,5 @@
 // Initialize Supabase Client
-// IMPORTANT: Replace these with your actual Supabase project credentials
-const SUPABASE_URL = 'https://wfujoffqfgxeuzpealuj.supabase.co'; // e.g., 'https://xxxxx.supabase.co'
+const SUPABASE_URL = 'https://wfujoffqfgxeuzpealuj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdWpvZmZxZmd4ZXV6cGVhbHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyODY2OTYsImV4cCI6MjA4MDg2MjY5Nn0.rf0FIRxnBsBrUaHE4b965mRwpFhZrkAKSR3YiOpKHAw';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -15,9 +14,6 @@ let userSettings = {
         priceChangeAlert: false,
         emailNotifications: true,
         pushNotifications: false
-    },
-    security: {
-        twoFactorAuth: false
     },
     preferences: {
         language: 'en',
@@ -180,11 +176,28 @@ document.getElementById('signinForm').addEventListener('submit', async function(
             id: data.user.id,
             fullName: profileData?.full_name || userData.full_name || 'User',
             businessName: profileData?.business_name || userData.business_name || 'My Business',
-            email: data.user.email || profileData?.email
+            email: data.user.email
         };
         
+        // Load settings from database (just like name and business name)
         if (profileData?.settings) {
-            userSettings = profileData.settings;
+            userSettings = {
+                notifications: {
+                    lowStockAlert: profileData.settings.notifications?.lowStockAlert ?? true,
+                    outOfStockAlert: profileData.settings.notifications?.outOfStockAlert ?? true,
+                    newProductAlert: profileData.settings.notifications?.newProductAlert ?? false,
+                    priceChangeAlert: profileData.settings.notifications?.priceChangeAlert ?? false,
+                    emailNotifications: profileData.settings.notifications?.emailNotifications ?? true,
+                    pushNotifications: profileData.settings.notifications?.pushNotifications ?? false
+                },
+                preferences: {
+                    language: profileData.settings.preferences?.language ?? 'en',
+                    currency: profileData.settings.preferences?.currency ?? 'MYR',
+                    dateFormat: profileData.settings.preferences?.dateFormat ?? 'MM/DD/YYYY',
+                    theme: profileData.settings.preferences?.theme ?? 'light',
+                    dashboardStockAlerts: profileData.settings.preferences?.dashboardStockAlerts ?? true
+                }
+            };
         }
         
         showMessage('signinMessage', 'Login successful! Loading dashboard...', 'success');
@@ -198,6 +211,7 @@ document.getElementById('signinForm').addEventListener('submit', async function(
         
     } catch (error) {
         showMessage('signinMessage', error.message || 'Invalid email or password.', 'error');
+        await supabase.auth.signOut();
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Sign In';
@@ -229,7 +243,6 @@ function loadDashboard(userProfile) {
 
 // Load All Settings
 function loadAllSettings() {
-    // Load notifications
     document.getElementById('lowStockAlert').checked = userSettings.notifications.lowStockAlert;
     document.getElementById('outOfStockAlert').checked = userSettings.notifications.outOfStockAlert;
     document.getElementById('newProductAlert').checked = userSettings.notifications.newProductAlert;
@@ -237,28 +250,24 @@ function loadAllSettings() {
     document.getElementById('emailNotifications').checked = userSettings.notifications.emailNotifications;
     document.getElementById('pushNotifications').checked = userSettings.notifications.pushNotifications;
 
-// Update notification status
-updateNotificationStatus();
+    updateNotificationStatus();
+    updateSecurityStatus();
 
-// Load security
-document.getElementById('twoFactorAuth').checked = userSettings.security.twoFactorAuth;
-updateSecurityStatus();
+    document.getElementById('languageSelect').value = userSettings.preferences.language;
+    document.getElementById('currencySelect').value = userSettings.preferences.currency;
+    document.getElementById('dateFormatSelect').value = userSettings.preferences.dateFormat;
+    document.getElementById('dashboardStockAlerts').checked = userSettings.preferences.dashboardStockAlerts;
 
-// Load preferences
-document.getElementById('languageSelect').value = userSettings.preferences.language;
-document.getElementById('currencySelect').value = userSettings.preferences.currency;
-document.getElementById('dateFormatSelect').value = userSettings.preferences.dateFormat;
-document.getElementById('dashboardStockAlerts').checked = userSettings.preferences.dashboardStockAlerts;
-
-// Load theme
-applyTheme(userSettings.preferences.theme);
+    applyTheme(userSettings.preferences.theme);
 }
 
 // Update Notification Status
 function updateNotificationStatus() {
-    const anyEnabled = userSettings.notifications.emailNotifications || 
-                      userSettings.notifications.pushNotifications;
-    document.getElementById('notificationStatus').textContent = anyEnabled ? 'Enabled' : 'Disabled';
+    const isEnabled = 
+        userSettings.notifications.emailNotifications ||
+        userSettings.notifications.pushNotifications;
+    
+    document.getElementById('notificationStatus').textContent = isEnabled ? 'Enabled' : 'Disabled';
 }
 
 // Update Security Status
@@ -268,20 +277,10 @@ function updateSecurityStatus() {
     const statusDesc = document.getElementById('securityStatusDesc');
     const settingValue = document.getElementById('securityStatus');
     
-    const twoFA = userSettings.security.twoFactorAuth;
-    
-    statusBox.className = 'security-status';
-    
-    if (twoFA) {
-        statusTitle.textContent = 'Security Status: Strong';
-        statusDesc.textContent = 'Your account is well protected with 2FA';
-        settingValue.textContent = 'Strong';
-    } else {
-        statusBox.classList.add('medium');
-        statusTitle.textContent = 'Security Status: Medium';
-        statusDesc.textContent = 'Enable 2FA for stronger protection';
-        settingValue.textContent = 'Medium';
-    }
+    statusBox.className = 'security-status medium';
+    statusTitle.textContent = 'Security Status: Medium';
+    statusDesc.textContent = 'Your account is protected with a password';
+    settingValue.textContent = 'Medium';
 }
 
 // Apply Theme
@@ -308,15 +307,28 @@ function applyTheme(theme) {
 
 // Save Settings to Supabase
 async function saveSettings() {
+    if (!currentUser || !currentUser.id) {
+        console.error('No user logged in');
+        return;
+    }
+    
     try {
         const { error } = await supabase
             .from('user_profiles')
-            .update({ settings: userSettings })
+            .update({ 
+                settings: userSettings
+            })
             .eq('user_id', currentUser.id);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error saving settings:', error);
+            throw error;
+        }
+        
+        console.log('Settings saved to database successfully');
     } catch (error) {
-        console.error('Error saving settings:', error);
+        console.error('Error in saveSettings:', error);
+        throw error;
     }
 }
 
@@ -347,9 +359,6 @@ document.getElementById('confirmLogout').addEventListener('click', async functio
                 priceChangeAlert: false,
                 emailNotifications: true,
                 pushNotifications: false
-            },
-            security: {
-                twoFactorAuth: false
             },
             preferences: {
                 language: 'en',
@@ -384,24 +393,18 @@ document.getElementById('goToSignin').addEventListener('click', function(e) {
 });
 
 // Modal Functions
-// Store initial state before opening modals
 let modalInitialState = {};
 
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add('show');
     
-    // Reset edit profile form when opening
     if (modalId === 'editProfileModal' && currentUser) {
         document.getElementById('editFullName').value = currentUser.fullName;
         document.getElementById('editEmail').value = currentUser.email;
         document.getElementById('editBusinessName').value = currentUser.businessName;
     }
     
-    // Store initial state for modals that need it
-    if (modalId === 'securityModal') {
-        modalInitialState.twoFactorAuth = document.getElementById('twoFactorAuth').checked;
-    }
     if (modalId === 'preferencesModal') {
         modalInitialState.theme = userSettings.preferences.theme;
         modalInitialState.dateFormat = document.getElementById('dateFormatSelect').value;
@@ -425,21 +428,14 @@ document.querySelectorAll('.modal-close, .btn-secondary[data-modal]').forEach(bt
         const modalId = this.dataset.modal;
         const modal = modalId ? document.getElementById(modalId) : this.closest('.modal');
         
-        // Reset to saved settings when canceling (without saving)
         if (modal) {
             if (modal.id === 'notificationModal') {
                 loadAllSettings();
             }
             if (modal.id === 'securityModal') {
-                // Restore 2FA to initial state
-                document.getElementById('twoFactorAuth').checked = modalInitialState.twoFactorAuth;
-                // Revert in-memory setting so the security status reflects the saved state
-                userSettings.security.twoFactorAuth = modalInitialState.twoFactorAuth;
-                updateSecurityStatus();
                 document.getElementById('securityForm').reset();
             }
             if (modal.id === 'preferencesModal') {
-                // Restore theme to initial state
                 if (modalInitialState.theme) {
                     applyTheme(modalInitialState.theme);
                 }
@@ -458,20 +454,13 @@ document.querySelectorAll('.modal-close, .btn-secondary[data-modal]').forEach(bt
 document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', function(e) {
         if (e.target === this) {
-            // Reset form values to saved settings when closing without saving
             if (this.id === 'notificationModal') {
                 loadAllSettings();
             }
             if (this.id === 'securityModal') {
-                // Restore 2FA to initial state
-                document.getElementById('twoFactorAuth').checked = modalInitialState.twoFactorAuth;
-                // Revert in-memory setting so the security status reflects the saved state
-                userSettings.security.twoFactorAuth = modalInitialState.twoFactorAuth;
-                updateSecurityStatus();
                 document.getElementById('securityForm').reset();
             }
             if (this.id === 'preferencesModal') {
-                // Restore theme to initial state
                 if (modalInitialState.theme) {
                     applyTheme(modalInitialState.theme);
                 }
@@ -482,15 +471,14 @@ document.querySelectorAll('.modal').forEach(modal => {
     });
 });
 
-// Edit Profile Form
+// Edit Profile Form - EMAIL DISABLED, NAME & BUSINESS ONLY
 document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const fullName = document.getElementById('editFullName').value.trim();
-    const email = document.getElementById('editEmail').value.trim();
     const businessName = document.getElementById('editBusinessName').value.trim();
     
-    if (!fullName || !email || !businessName) {
+    if (!fullName || !businessName) {
         alert('Please fill in all fields.');
         return;
     }
@@ -500,17 +488,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
     submitBtn.textContent = 'Saving...';
     
     try {
-        // First update the email in Supabase Auth
-        const { error: emailError } = await supabase.auth.updateUser({
-            email: email
-        });
-        
-        if (emailError) {
-            // If email update fails, still try to update metadata
-            console.warn('Email update warning:', emailError.message);
-        }
-        
-        // Update user metadata
+        // Update User Metadata
         const { error: metaError } = await supabase.auth.updateUser({
             data: {
                 full_name: fullName,
@@ -520,25 +498,24 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
         
         if (metaError) throw metaError;
         
-        // Update profile in database with new email
+        // Update Profile Database (email stays the same)
         const { error: profileError } = await supabase
             .from('user_profiles')
             .update({
                 full_name: fullName,
-                business_name: businessName,
-                email: email
+                business_name: businessName
             })
             .eq('user_id', currentUser.id);
         
         if (profileError) throw profileError;
         
+        // Update Current User (email remains unchanged)
         currentUser.fullName = fullName;
         currentUser.businessName = businessName;
-        currentUser.email = email;
         
         loadDashboard(currentUser);
         closeModal('editProfileModal');
-        alert('Profile updated successfully!\n\nNote: If you changed your email, please check your new email and verify it.');
+        alert('Profile updated successfully!');
         
     } catch (error) {
         alert('Error updating profile: ' + error.message);
@@ -550,18 +527,41 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
 
 // Save Notification Settings
 document.getElementById('saveNotificationSettings').addEventListener('click', async function() {
-    userSettings.notifications.lowStockAlert = document.getElementById('lowStockAlert').checked;
-    userSettings.notifications.outOfStockAlert = document.getElementById('outOfStockAlert').checked;
-    userSettings.notifications.newProductAlert = document.getElementById('newProductAlert').checked;
-    userSettings.notifications.priceChangeAlert = document.getElementById('priceChangeAlert').checked;
-    userSettings.notifications.emailNotifications = document.getElementById('emailNotifications').checked;
-    userSettings.notifications.pushNotifications = document.getElementById('pushNotifications').checked;
+    const saveBtn = this;
+    const originalText = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
     
-    updateNotificationStatus();
-    await saveSettings();
-    
-    closeModal('notificationModal');
-    alert('Notification settings saved successfully!');
+    try {
+        // Update userSettings object (in memory)
+        userSettings.notifications.lowStockAlert = document.getElementById('lowStockAlert').checked;
+        userSettings.notifications.outOfStockAlert = document.getElementById('outOfStockAlert').checked;
+        userSettings.notifications.newProductAlert = document.getElementById('newProductAlert').checked;
+        userSettings.notifications.priceChangeAlert = document.getElementById('priceChangeAlert').checked;
+        userSettings.notifications.emailNotifications = document.getElementById('emailNotifications').checked;
+        userSettings.notifications.pushNotifications = document.getElementById('pushNotifications').checked;
+        
+        updateNotificationStatus();
+        
+        // Save to database (SAME WAY as name/business name)
+        const { error } = await supabase
+            .from('user_profiles')
+            .update({ 
+                settings: userSettings
+            })
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        closeModal('notificationModal');
+        alert('Notification settings saved successfully!');
+    } catch (error) {
+        console.error('Error saving notification settings:', error);
+        alert('Failed to save notification settings: ' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    }
 });
 
 // Security Form - Password Change
@@ -592,7 +592,6 @@ document.getElementById('securityForm').addEventListener('submit', async functio
     submitBtn.textContent = 'Verifying...';
     
     try {
-        // First verify current password by attempting to sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
@@ -605,7 +604,6 @@ document.getElementById('securityForm').addEventListener('submit', async functio
             return;
         }
         
-        // If verification successful, update to new password
         submitBtn.textContent = 'Updating...';
         const { error } = await supabase.auth.updateUser({
             password: newPassword
@@ -624,33 +622,38 @@ document.getElementById('securityForm').addEventListener('submit', async functio
     }
 });
 
-// Save Security Settings Button
-document.getElementById('saveSecuritySettings').addEventListener('click', async function() {
-    userSettings.security.twoFactorAuth = document.getElementById('twoFactorAuth').checked;
-    
-    updateSecurityStatus();
-    await saveSettings();
-    
-    closeModal('securityModal');
-    alert('Security settings saved successfully!');
-});
-
-// Security Options - 2FA (removed auto-save)
-document.getElementById('twoFactorAuth').addEventListener('change', function() {
-    userSettings.security.twoFactorAuth = this.checked;
-    updateSecurityStatus();
-});
-
 // Preferences Form
 document.getElementById('savePreferences').addEventListener('click', async function() {
-    userSettings.preferences.language = document.getElementById('languageSelect').value;
-    userSettings.preferences.currency = document.getElementById('currencySelect').value;
-    userSettings.preferences.dateFormat = document.getElementById('dateFormatSelect').value;
-    userSettings.preferences.dashboardStockAlerts = document.getElementById('dashboardStockAlerts').checked;
+    const saveBtn = this;
+    const originalText = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
     
-    await saveSettings();
-    closeModal('preferencesModal');
-    alert('Preferences saved successfully!');
+    try {
+        userSettings.preferences.language = document.getElementById('languageSelect').value;
+        userSettings.preferences.currency = document.getElementById('currencySelect').value;
+        userSettings.preferences.dateFormat = document.getElementById('dateFormatSelect').value;
+        userSettings.preferences.dashboardStockAlerts = document.getElementById('dashboardStockAlerts').checked;
+        
+        // Save to database (SAME WAY as name/business name)
+        const { error } = await supabase
+            .from('user_profiles')
+            .update({ 
+                settings: userSettings
+            })
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        closeModal('preferencesModal');
+        alert('Preferences saved successfully!');
+    } catch (error) {
+        console.error('Error saving preferences:', error);
+        alert('Failed to save preferences: ' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    }
 });
 
 // Theme Selector
@@ -665,7 +668,6 @@ document.querySelectorAll('.theme-option').forEach(option => {
 document.getElementById('gettingStartedGuide').addEventListener('click', function() {
     closeModal('helpCenterModal');
     
-    // Show guide modal or information
     alert('📚 Getting Started Guide\n\n' +
           '1. Dashboard - View your inventory overview\n' +
           '2. Inventory - Add and manage your products\n' +
@@ -706,11 +708,28 @@ window.addEventListener('DOMContentLoaded', async function() {
                 id: session.user.id,
                 fullName: profileData?.full_name || userData.full_name || 'User',
                 businessName: profileData?.business_name || userData.business_name || 'My Business',
-                email: session.user.email || profileData?.email
+                email: session.user.email
             };
             
+            // Load settings from database (just like name and business name)
             if (profileData?.settings) {
-                userSettings = profileData.settings;
+                userSettings = {
+                    notifications: {
+                        lowStockAlert: profileData.settings.notifications?.lowStockAlert ?? true,
+                        outOfStockAlert: profileData.settings.notifications?.outOfStockAlert ?? true,
+                        newProductAlert: profileData.settings.notifications?.newProductAlert ?? false,
+                        priceChangeAlert: profileData.settings.notifications?.priceChangeAlert ?? false,
+                        emailNotifications: profileData.settings.notifications?.emailNotifications ?? true,
+                        pushNotifications: profileData.settings.notifications?.pushNotifications ?? false
+                    },
+                    preferences: {
+                        language: profileData.settings.preferences?.language ?? 'en',
+                        currency: profileData.settings.preferences?.currency ?? 'MYR',
+                        dateFormat: profileData.settings.preferences?.dateFormat ?? 'MM/DD/YYYY',
+                        theme: profileData.settings.preferences?.theme ?? 'light',
+                        dashboardStockAlerts: profileData.settings.preferences?.dashboardStockAlerts ?? true
+                    }
+                };
             }
             
             loadDashboard(currentUser);
