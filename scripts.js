@@ -1,8 +1,8 @@
 // Initialize Supabase Client
-const SUPABASE_URL = 'https://wfujoffqfgxeuzpealuj.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdWpvZmZxZmd4ZXV6cGVhbHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyODY2OTYsImV4cCI6MjA4MDg2MjY5Nn0.rf0FIRxnBsBrUaHE4b965mRwpFhZrkAKSR3YiOpKHAw';
+const SUPABASE_URL = 'https://dtyfaxoxxwzukidtulss.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0eWZheG94eHd6dWtpZHR1bHNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMDUxNDYsImV4cCI6MjA3ODU4MTE0Nn0.VrClu4gZYRJNa6M_n-XcaWi-0MBnrfWWSbmy64piDqM';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Global Variables
 let currentUser = null;
@@ -100,7 +100,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     submitBtn.textContent = 'Creating Account...';
     
     try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -114,7 +114,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         if (authError) throw authError;
         
         if (authData.user) {
-            const { error: profileError } = await supabase
+            const { error: profileError } = await supabaseClient
                 .from('user_profiles')
                 .insert([{
                     user_id: authData.user.id,
@@ -157,14 +157,14 @@ document.getElementById('signinForm').addEventListener('submit', async function(
     submitBtn.textContent = 'Signing In...';
     
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         });
         
         if (error) throw error;
         
-        const { data: profileData } = await supabase
+        const { data: profileData } = await supabaseClient
             .from('user_profiles')
             .select('*')
             .eq('user_id', data.user.id)
@@ -211,7 +211,7 @@ document.getElementById('signinForm').addEventListener('submit', async function(
         
     } catch (error) {
         showMessage('signinMessage', error.message || 'Invalid email or password.', 'error');
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Sign In';
@@ -313,7 +313,7 @@ async function saveSettings() {
     }
     
     try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -347,7 +347,7 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
 
 document.getElementById('confirmLogout').addEventListener('click', async function() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
         
         currentUser = null;
@@ -489,7 +489,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
     
     try {
         // Update User Metadata
-        const { error: metaError } = await supabase.auth.updateUser({
+        const { error: metaError } = await supabaseClient.auth.updateUser({
             data: {
                 full_name: fullName,
                 business_name: businessName
@@ -499,7 +499,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
         if (metaError) throw metaError;
         
         // Update Profile Database (email stays the same)
-        const { error: profileError } = await supabase
+        const { error: profileError } = await supabaseClient
             .from('user_profiles')
             .update({
                 full_name: fullName,
@@ -544,7 +544,7 @@ document.getElementById('saveNotificationSettings').addEventListener('click', as
         updateNotificationStatus();
         
         // Save to database (SAME WAY as name/business name)
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -592,7 +592,7 @@ document.getElementById('securityForm').addEventListener('submit', async functio
     submitBtn.textContent = 'Verifying...';
     
     try {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
         });
@@ -605,7 +605,7 @@ document.getElementById('securityForm').addEventListener('submit', async functio
         }
         
         submitBtn.textContent = 'Updating...';
-        const { error } = await supabase.auth.updateUser({
+        const { error } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
         
@@ -636,7 +636,7 @@ document.getElementById('savePreferences').addEventListener('click', async funct
         userSettings.preferences.dashboardStockAlerts = document.getElementById('dashboardStockAlerts').checked;
         
         // Save to database (SAME WAY as name/business name)
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -692,11 +692,11 @@ document.getElementById('contactSupportButton').addEventListener('click', functi
 
 // Check for existing session on page load
 window.addEventListener('DOMContentLoaded', async function() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     
     if (session) {
         try {
-            const { data: profileData } = await supabase
+            const { data: profileData } = await supabaseClient
                 .from('user_profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
