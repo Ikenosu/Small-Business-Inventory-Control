@@ -1583,7 +1583,7 @@ body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5;
     align-items: center;
     gap: 16px;
     border: 1px solid #e2e8f0;
-}
+} 
 
 .stat-icon {
     width: 48px;
