@@ -821,7 +821,7 @@ async function updateDashboardStats() {
         
         if (valueEl) valueEl.textContent = 'RM ' + totalValue.toLocaleString('en-MY', { 
             minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
+            maximumFractionDigits: 2  
         });
 
     } catch (err) {
