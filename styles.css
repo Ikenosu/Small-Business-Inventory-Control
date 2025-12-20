@@ -1480,7 +1480,6 @@ input:checked + .toggle-slider:before {
     justify-content: space-between;
 }
 
-/* --- NEW ADDITIONS FOR DASHBOARD & INVENTORY --- */
 
 /* Dashboard Stats Grid */
 .stats-grid {
@@ -1518,12 +1517,10 @@ input:checked + .toggle-slider:before {
 .stat-info h3 { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 4px; }
 .stat-number { font-size: 24px; font-weight: 700; color: #1e293b; }
 
-/* Quick Actions */
 .section-container { margin-top: 20px; }
 .section-header { margin-bottom: 15px; }
 .action-buttons { display: flex; gap: 15px; }
 
-/* Inventory Table */
 .inventory-card { padding: 0; overflow: hidden; }
 .inventory-table { width: 100%; border-collapse: collapse; }
 
@@ -1548,7 +1545,6 @@ input:checked + .toggle-slider:before {
 .inventory-table tr:last-child td { border-bottom: none; }
 .inventory-table tr:hover { background-color: #f8fafc; }
 
-/* Status Badges */
 .badge {
     padding: 4px 8px;
     border-radius: 4px;
@@ -1571,27 +1567,24 @@ body.dark-theme .inventory-table tr:hover { background: #334155; }
 body.dark-theme .badge-instock { background: rgba(34, 197, 94, 0.2); color: #86efac; }
 body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
 
-/* Grid Layout for the Top Stats Cards */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Creates 3 equal columns */
-    gap: 24px;                             /* Space between cards */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 24px;
     margin-bottom: 30px;
 }
 
-/* Individual Card Styling */
 .stat-card {
     background: white;
     padding: 24px;
     border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
     display: flex;
     align-items: center;
     gap: 16px;
     border: 1px solid #e2e8f0;
 }
 
-/* Icon Styling */
 .stat-icon {
     width: 48px;
     height: 48px;
@@ -1599,7 +1592,7 @@ body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* Prevents icon from shrinking */
+    flex-shrink: 0; 
 }
 
 .stat-icon svg { 
@@ -1612,7 +1605,6 @@ body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5;
 .icon-red { background-color: #fef2f2; color: #ef4444; }
 .icon-green { background-color: #f0fdf4; color: #22c55e; }
 
-/* Quick Actions Section Styling */
 .section-container {
     margin-top: 20px;
 }
@@ -1626,7 +1618,6 @@ body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5;
     gap: 15px;
 }
 
-/* Mobile Responsiveness */
 /* If screen is smaller than 768px, stack cards vertically */
 @media (max-width: 768px) {
     .stats-grid {
@@ -1634,7 +1625,6 @@ body.dark-theme .badge-low { background: rgba(239, 68, 68, 0.2); color: #fca5a5;
     }
 }
 
-/* Dark Mode Overrides */
 body.dark-theme .stat-card {
     background-color: #1e293b;
     border-color: #334155;
@@ -1644,71 +1634,114 @@ body.dark-theme .stat-number {
     color: #f1f5f9; 
 }
 
-/* Dark mode icon backgrounds (more transparent) */
+/* Dark mode icon backgrounds */
 body.dark-theme .icon-blue { background-color: rgba(59, 130, 246, 0.2); }
 body.dark-theme .icon-red { background-color: rgba(239, 68, 68, 0.2); }
 body.dark-theme .icon-green { background-color: rgba(34, 197, 94, 0.2); }
 
+.form-input, 
+.select-input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s;
+    margin-bottom: 0; 
+}
 
-/* =========================================
-   FULL WIDTH BOTTOM SHEET MODAL STYLES
-   (For Add Product & Edit Profile)
-   ========================================= */
+.form-input:focus,
+.select-input:focus {
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 
-/* 1. Target the content box of both modals */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+    color: #334155;
+}
+
+.full-width {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
 #addProductModal .modal-content,
 #editProfileModal .modal-content {
-    /* Reset default styles */
-    margin: 0;
-    top: auto;
-    left: 0;
-    right: 0;
-    transform: none;
-
-    /* Core Layout: Fixed at bottom, full width */
     position: absolute;
     bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto; 
+    margin: 0; 
+    
+    /* Dimensions */
     width: 100%;
     max-width: none !important;
-
-    /* Height Settings */
-    height: 92vh;
-    max-height: 92vh;       /* Leave some space at the top */
-    overflow-y: auto;       /* Allow scrolling if content is long */
-
+    height: 92vh; 
+    max-height: 92vh;
+    
     /* Appearance */
-    border-radius: 24px 24px 0 0;   /* Rounded top corners */
-    padding: 24px 24px 40px 24px;   /* Extra padding at bottom */
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-
-    /* Animation: Slide up from bottom */
+    border-radius: 24px 24px 0 0; 
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+    padding: 0; 
+    
+    /* Scrolling */
+    overflow-y: auto;
+    
     animation: slideUpSheet 0.3s ease-out forwards;
 }
 
-/* 2. Define the Slide Up Animation */
-@keyframes slideUpSheet {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 3. Sticky Header (Keeps the title visible when scrolling) */
 #addProductModal .modal-header,
 #editProfileModal .modal-header {
     position: sticky;
     top: 0;
     background: white;
-    z-index: 10;
-    padding-top: 10px;
-    margin-top: -10px;
-    border-bottom: 1px solid #eee;
+    z-index: 50;
+    padding: 24px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-/* 4. Dark Mode Support */
+#addProductModal .modal-body {
+    padding: 24px 24px 40px 24px; 
+}
+
+#addProductModal .modal-actions {
+    padding: 24px;
+    border-top: 1px solid #f1f5f9;
+    background: white;
+}
+
+@keyframes slideUpSheet {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 body.dark-theme #addProductModal .modal-content,
 body.dark-theme #editProfileModal .modal-content,
 body.dark-theme #addProductModal .modal-header,
-body.dark-theme #editProfileModal .modal-header {
-    background-color: #1e293b;
-    color: #fff;
-    border-bottom-color: #334155;
+body.dark-theme #addProductModal .modal-actions {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-theme .form-input,
+body.dark-theme .select-input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
 }

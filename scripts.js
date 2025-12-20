@@ -2,7 +2,7 @@
 const SUPABASE_URL = 'https://wfujoffqfgxeuzpealuj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdWpvZmZxZmd4ZXV6cGVhbHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyODY2OTYsImV4cCI6MjA4MDg2MjY5Nn0.rf0FIRxnBsBrUaHE4b965mRwpFhZrkAKSR3YiOpKHAw';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Global Variables
 let currentUser = null;
@@ -100,7 +100,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     submitBtn.textContent = 'Creating Account...';
     
     try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -114,7 +114,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         if (authError) throw authError;
         
         if (authData.user) {
-            const { error: profileError } = await supabase
+            const { error: profileError } = await supabaseClient
                 .from('user_profiles')
                 .insert([{
                     user_id: authData.user.id,
@@ -157,14 +157,14 @@ document.getElementById('signinForm').addEventListener('submit', async function(
     submitBtn.textContent = 'Signing In...';
     
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         });
         
         if (error) throw error;
         
-        const { data: profileData } = await supabase
+        const { data: profileData } = await supabaseClient
             .from('user_profiles')
             .select('*')
             .eq('user_id', data.user.id)
@@ -211,7 +211,7 @@ document.getElementById('signinForm').addEventListener('submit', async function(
         
     } catch (error) {
         showMessage('signinMessage', error.message || 'Invalid email or password.', 'error');
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Sign In';
@@ -313,7 +313,7 @@ async function saveSettings() {
     }
     
     try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -347,7 +347,7 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
 
 document.getElementById('confirmLogout').addEventListener('click', async function() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
         
         currentUser = null;
@@ -489,7 +489,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
     
     try {
         // Update User Metadata
-        const { error: metaError } = await supabase.auth.updateUser({
+        const { error: metaError } = await supabaseClient.auth.updateUser({
             data: {
                 full_name: fullName,
                 business_name: businessName
@@ -499,7 +499,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
         if (metaError) throw metaError;
         
         // Update Profile Database (email stays the same)
-        const { error: profileError } = await supabase
+        const { error: profileError } = await supabaseClient
             .from('user_profiles')
             .update({
                 full_name: fullName,
@@ -544,7 +544,7 @@ document.getElementById('saveNotificationSettings').addEventListener('click', as
         updateNotificationStatus();
         
         // Save to database (SAME WAY as name/business name)
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -592,7 +592,7 @@ document.getElementById('securityForm').addEventListener('submit', async functio
     submitBtn.textContent = 'Verifying...';
     
     try {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
         });
@@ -605,7 +605,7 @@ document.getElementById('securityForm').addEventListener('submit', async functio
         }
         
         submitBtn.textContent = 'Updating...';
-        const { error } = await supabase.auth.updateUser({
+        const { error } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
         
@@ -636,7 +636,7 @@ document.getElementById('savePreferences').addEventListener('click', async funct
         userSettings.preferences.dashboardStockAlerts = document.getElementById('dashboardStockAlerts').checked;
         
         // Save to database (SAME WAY as name/business name)
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('user_profiles')
             .update({ 
                 settings: userSettings
@@ -692,11 +692,11 @@ document.getElementById('contactSupportButton').addEventListener('click', functi
 
 // Check for existing session on page load
 window.addEventListener('DOMContentLoaded', async function() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     
     if (session) {
         try {
-            const { data: profileData } = await supabase
+            const { data: profileData } = await supabaseClient
                 .from('user_profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
@@ -743,3 +743,207 @@ window.addEventListener('DOMContentLoaded', async function() {
         showSigninPage();
     }
 });
+
+// --- ADD THIS TO CONNECT SIDEBAR TO NEW PAGES ---
+
+// Select all sidebar links
+const menuItems = document.querySelectorAll('.menu-item, .sidebar a'); 
+const pages = document.querySelectorAll('.content-page');
+
+menuItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+        // Prevent default anchor click behavior
+        e.preventDefault();
+
+        // 1. Remove 'active' class from all menu items
+        menuItems.forEach(link => link.classList.remove('active'));
+        
+        // 2. Add 'active' class to the clicked item
+        this.classList.add('active');
+
+        // 3. Hide all content pages
+        pages.forEach(page => page.style.display = 'none');
+
+        // 4. Show the specific page based on the clicked link's text or ID
+        const linkText = this.innerText.trim().toLowerCase();
+        
+        if (linkText.includes('dashboard')) {
+            document.getElementById('dashboardContent').style.display = 'block';
+            updateDashboardStatdis(); // Refresh stats when opening dashboard
+        } 
+        else if (linkText.includes('inventory')) {
+            document.getElementById('inventoryContent').style.display = 'block';
+            renderInventoryTable(); // Refresh table when opening inventory
+        } 
+        else if (linkText.includes('report')) {
+            document.getElementById('reportsContent').style.display = 'block';
+        }
+        else if (linkText.includes('profile')) {
+            // Assuming your original profile section has this ID
+            const profileSection = document.getElementById('profile-section') || document.getElementById('profileContent');
+            if(profileSection) profileSection.style.display = 'block';
+        }
+    });
+});
+
+document.getElementById('dashboardContent').style.display = 'block';
+document.getElementById('inventoryContent').style.display = 'none';
+document.getElementById('reportsContent').style.display = 'none';
+
+async function updateDashboardStats() {
+    console.log("Updating Dashboard stats...");
+    
+    try {
+        const { data: products, error } = await supabaseClient
+            .from('products')
+            .select('*');
+
+        if (error) throw error;
+
+        const totalCount = products.length;
+        
+        const outStockCount = products.filter(p => p.quantity === 0).length;
+
+        const lowStockCount = products.filter(p => p.quantity > 0 && p.quantity <= 10).length;
+        
+        const totalValue = products.reduce((sum, item) => {
+            return sum + (Number(item.price) * Number(item.quantity));
+        }, 0);
+
+        const totalEl = document.getElementById('dashboardTotalProducts');
+        const lowStockEl = document.getElementById('dashboardLowStock');
+        const outStockEl = document.getElementById('dashboardOutOfStock');
+        const valueEl = document.getElementById('dashboardTotalValue');
+
+        if (totalEl) totalEl.textContent = totalCount;
+        if (lowStockEl) lowStockEl.textContent = lowStockCount;
+        if (outStockEl) outStockEl.textContent = outStockCount; 
+        
+        if (valueEl) valueEl.textContent = 'RM ' + totalValue.toLocaleString('en-MY', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+
+    } catch (err) {
+        console.error('Failed to fetch Dashboard data:', err);
+    }
+}
+
+/* UPDATED FIX: SAVE SKU, LOW STOCK & PREVENT DOUBLE CLICK */
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Get Elements
+    const dashboardAddBtn = document.getElementById('dashboardAddBtn');
+    const modal = document.getElementById('addProductModal');
+    const closeBtn = document.getElementById('closeAddModal');
+    const cancelBtn = document.getElementById('cancelAddProduct');
+    const addForm = document.getElementById('addProductForm');
+
+    // Open Modal Logic
+    if (dashboardAddBtn && modal) {
+        dashboardAddBtn.addEventListener('click', function() {
+            modal.style.display = 'block'; 
+        });
+    }
+
+    // Close Modal Function
+    function closeModal() {
+        modal.style.display = 'none';
+        if (addForm) addForm.reset();
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    
+    // Click outside to close
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Save Data
+    if (addForm) {
+        addForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // 🔒 Lock the button to prevent double-clicking
+            const submitBtn = addForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.textContent : 'Save';
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;       
+                submitBtn.textContent = 'Saving...'; 
+            }
+
+            // Get values from input fields
+            const name = document.getElementById('newProdName').value;
+            const sku = document.getElementById('newProdSku').value;       
+            const category = document.getElementById('newProdCategory').value;
+            const qty = Number(document.getElementById('newProdQty').value);
+            const lowStock = Number(document.getElementById('newProdLowStock').value); 
+            const price = Number(document.getElementById('newProdPrice').value);
+
+            // Calculate Status Logic
+            let status = 'In Stock';
+            if (qty === 0) status = 'Out of Stock';
+            else if (qty <= lowStock) status = 'Low Stock';
+
+            try {
+                
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .insert([
+                        { 
+                            name: name, 
+                            sku: sku,             
+                            category: category, 
+                            quantity: qty, 
+                            price: price,
+                            low_stock_threshold: lowStock,
+                            status: status
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert('Product added successfully!');
+                closeModal();
+                
+                if (typeof updateDashboardStats === 'function') updateDashboardStats();
+
+                if (typeof renderInventoryTable === 'function') renderInventoryTable(); 
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            } finally {
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            }
+        });
+    }
+});
+
+const goToInvBtn = document.getElementById('goToInventoryBtn');
+if (goToInvBtn) {
+    goToInvBtn.addEventListener('click', function() {
+        const invLink = document.querySelector('.nav-item[data-page="inventory"]');
+        if (invLink) {
+            invLink.click();
+        }
+    });
+}
+
+const dashboardLink = document.querySelector('.nav-item[data-page="dashboard"]');
+if (dashboardLink) {
+    dashboardLink.addEventListener('click', function() {
+        if (typeof updateDashboardStats === 'function') {
+            updateDashboardStats();
+        }
+    });
+}
+
