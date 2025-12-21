@@ -131,6 +131,38 @@
         </div>
 
         <div class="main-content">
+            <!-- Inventory Content -->
+            <div id="inventoryContent" class="content-page">
+                <div class="inventory-wrapper">
+                    <div class="content-header">
+                        <h1>Inventory Management</h1>
+                        <p>Manage your products and stock levels</p>
+                    </div>
+
+                    <!-- Top Bar -->
+                    <div class="inventory-topbar">
+                        <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" placeholder="Search products......" id="inventorySearch">
+                        </div>
+
+                        <div class="top-actions">
+                        <button class="btn-primary add-btn" type="button">+ Add New</button>
+                        </div>
+                    </div>
+
+                    <p class="product-count" id="productCount">0 products</p>
+
+                    <!-- Product Cards Grid (DYNAMIC) -->
+                    <div class="inventory-grid" id="inventoryGrid">
+                        <!-- Injected by JS -->
+                    </div>
+            </div>
+            </div>
+
             <!-- Profile Page -->
             <div id="profileContent" class="content-page">
                 <div class="content-header">
@@ -313,8 +345,6 @@
             </div>
         </div>
     </div>
-</div>
-
     <div class="section-container">
         <div class="section-header">
             <h3>Quick Actions</h3>
@@ -328,125 +358,6 @@
                 View Inventory
             </button>
         </div>
-    </div>
-</div>
-
-            <!-- Inventory Content -->
-            <div id="inventoryContent" class="content-page">
-    <div class="content-header">
-        <h1>Inventory Management</h1>
-        <p>Manage your products and stock levels</p>
-    </div>
-
-    <!-- Top Bar -->
-    <div class="inventory-topbar">
-        <div class="search-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input type="text" placeholder="Search products..." id="inventorySearch">
-        </div>
-
-        <div class="top-actions">
-            <button class="filter-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="4" y1="21" x2="4" y2="14"></line>
-                    <line x1="4" y1="10" x2="4" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12" y2="3"></line>
-                    <line x1="20" y1="21" x2="20" y2="16"></line>
-                    <line x1="20" y1="12" x2="20" y2="3"></line>
-                </svg>
-            </button>
-
-            <button class="btn-primary add-btn">+ Add New</button>
-        </div>
-    </div>
-
-    <p class="product-count">6 products</p>
-
-    <!-- Product Cards Grid -->
-    <div class="inventory-grid">
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                Wireless Mouse <span class="badge in-stock">In Stock</span>
-            </div>
-            <div class="product-row">SKU: WM-001</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>45</div>
-                <div><strong>Price</strong><br>$29.99</div>
-                <div><strong>Category</strong><br>Electronics</div>
-            </div>
-        </div>
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                Office Chair <span class="badge in-stock">In Stock</span>
-            </div>
-            <div class="product-row">SKU: OC-002</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>8</div>
-                <div><strong>Price</strong><br>$199.99</div>
-                <div><strong>Category</strong><br>Furniture</div>
-            </div>
-        </div>
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                USB Cable <span class="badge low-stock">Low Stock</span>
-            </div>
-            <div class="product-row">SKU: UC-003</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>3</div>
-                <div><strong>Price</strong><br>$9.99</div>
-                <div><strong>Category</strong><br>Electronics</div>
-            </div>
-        </div>
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                Notebook <span class="badge in-stock">In Stock</span>
-            </div>
-            <div class="product-row">SKU: NB-004</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>120</div>
-                <div><strong>Price</strong><br>$4.99</div>
-                <div><strong>Category</strong><br>Stationery</div>
-            </div>
-        </div>
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                Desk Lamp <span class="badge out-stock">Out of Stock</span>
-            </div>
-            <div class="product-row">SKU: DL-005</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>0</div>
-                <div><strong>Price</strong><br>$39.99</div>
-                <div><strong>Category</strong><br>Furniture</div>
-            </div>
-        </div>
-
-        <!-- Product Card -->
-        <div class="product-card">
-            <div class="product-title">
-                Keyboard <span class="badge in-stock">In Stock</span>
-            </div>
-            <div class="product-row">SKU: KB-006</div>
-            <div class="product-info">
-                <div><strong>Quantity</strong><br>32</div>
-                <div><strong>Price</strong><br>$79.99</div>
-                <div><strong>Category</strong><br>Electronics</div>
-            </div>
-        </div>
-
     </div>
 </div>
 
@@ -799,6 +710,8 @@
         </div>
 
         <form id="addProductForm">
+            <!-- Used to switch between Add vs Edit in JS -->
+            <input type="hidden" id="editProdId" value="">
             <div class="modal-body">
                 
                 <div class="form-group">
@@ -844,6 +757,93 @@
                 <button type="button" class="btn-secondary full-width" id="cancelAddProduct">Cancel</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Product Details (opens when clicking a product card in Inventory) -->
+<div id="productDetailsModal" class="modal">
+    <div class="modal-content product-details-sheet">
+        <div class="product-details-header">
+            <div>
+                <div class="pd-title" id="pdName">Product</div>
+                <div class="pd-sub" id="pdSku">SKU : -</div>
+            </div>
+            <button class="pd-close" id="pdCloseBtn" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="product-details-body">
+            <span class="pd-status badge in-stock" id="pdStatus">In Stock</span>
+
+            <div class="pd-grid">
+                <div class="pd-card pd-span2">
+                    <div class="pd-label">Current Quantity</div>
+                    <div class="pd-value"><span id="pdQty">0</span> <span class="pd-unit">units</span></div>
+                </div>
+
+                <div class="pd-card">
+                    <div class="pd-label">Price</div>
+                    <div class="pd-value" id="pdPrice">RM 0.00</div>
+                </div>
+
+                <div class="pd-card">
+                    <div class="pd-label">Category</div>
+                    <div class="pd-value" id="pdCategory">-</div>
+                </div>
+
+                <div class="pd-card pd-span2">
+                    <div class="pd-label">Low Stock Threshold</div>
+                    <div class="pd-value"><span id="pdLowStock">10</span> <span class="pd-unit">units</span></div>
+                </div>
+
+                <div class="pd-card pd-span2">
+                    <div class="pd-label">Last Updated</div>
+                    <div class="pd-value" id="pdUpdated">-</div>
+                </div>
+
+                <div class="pd-total pd-span2">
+                    <div class="pd-total-title">Total Value</div>
+                    <div class="pd-total-value" id="pdTotalValue">RM 0.00</div>
+                </div>
+            </div>
+
+            <div class="pd-actions">
+                <button type="button" class="btn-primary full-width" id="pdEditBtn">Edit Product</button>
+                <button type="button" class="btn-secondary full-width" id="pdDeleteBtn">Delete Product</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="inventoryModal" class="modal hidden">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add Product</h2>
+
+        <input type="hidden" id="editIndex">
+
+        <label>Name</label>
+        <input type="text" id="productName">
+
+        <label>SKU</label>
+        <input type="text" id="productSKU">
+
+        <label>Category</label>
+        <input type="text" id="productCategory">
+
+        <label>Price</label>
+        <input type="number" id="productPrice">
+
+        <label>Quantity</label>
+        <input type="number" id="productQuantity">
+
+        <div class="modal-actions">
+            <button onclick="saveProduct()" class="btn-primary">Save</button>
+            <button onclick="closeInventoryModal()">Cancel</button>
+        </div>
+
+        <!-- Only visible in edit mode -->
+        <button id="deleteBtn" class="danger-btn hidden" onclick="deleteProduct()">
+            Delete Product
+        </button>
     </div>
 </div>
 

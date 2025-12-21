@@ -397,17 +397,25 @@ let modalInitialState = {};
 
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
+    if (!modal) return;
+
     modal.classList.add('show');
-    
+
     if (modalId === 'editProfileModal' && currentUser) {
-        document.getElementById('editFullName').value = currentUser.fullName;
-        document.getElementById('editEmail').value = currentUser.email;
-        document.getElementById('editBusinessName').value = currentUser.businessName;
+        const name = document.getElementById('editFullName');
+        const email = document.getElementById('editEmail');
+        const business = document.getElementById('editBusinessName');
+
+        if (name) name.value = currentUser.fullName;
+        if (email) email.value = currentUser.email;
+        if (business) business.value = currentUser.businessName;
     }
-    
+
     if (modalId === 'preferencesModal') {
-        modalInitialState.theme = userSettings.preferences.theme;
-        modalInitialState.dateFormat = document.getElementById('dateFormatSelect').value;
+        const dateSelect = document.getElementById('dateFormatSelect');
+        if (dateSelect) {
+            modalInitialState.dateFormat = dateSelect.value;
+        }
     }
 }
 
@@ -839,9 +847,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelBtn = document.getElementById('cancelAddProduct');
     const addForm = document.getElementById('addProductForm');
 
+    // Helpers to switch Add vs Edit
+    const editProdIdEl = document.getElementById('editProdId');
+    const modalHeaderTitle = modal ? modal.querySelector('.modal-header h3') : null;
+
+    function setAddMode() {
+        if (editProdIdEl) editProdIdEl.value = '';
+        if (modalHeaderTitle) modalHeaderTitle.textContent = 'Add New Product';
+        const submitBtn = addForm ? addForm.querySelector('button[type="submit"]') : null;
+        if (submitBtn) submitBtn.textContent = 'Add Product';
+    }
+
+    function setEditMode() {
+        if (modalHeaderTitle) modalHeaderTitle.textContent = 'Edit Product';
+        const submitBtn = addForm ? addForm.querySelector('button[type="submit"]') : null;
+        if (submitBtn) submitBtn.textContent = 'Save Changes';
+    }
+
     // Open Modal Logic
     if (dashboardAddBtn && modal) {
         dashboardAddBtn.addEventListener('click', function() {
+            setAddMode();
             modal.style.display = 'block'; 
         });
     }
@@ -850,6 +876,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeModal() {
         modal.style.display = 'none';
         if (addForm) addForm.reset();
+        setAddMode();
     }
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -890,24 +917,41 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (qty <= lowStock) status = 'Low Stock';
 
             try {
-                
-                const { data, error } = await supabaseClient
-                    .from('products')
-                    .insert([
-                        { 
-                            name: name, 
-                            sku: sku,             
-                            category: category, 
-                            quantity: qty, 
+                const editId = (document.getElementById('editProdId')?.value || '').trim();
+
+                if (editId) {
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .update({
+                            name: name,
+                            sku: sku,
+                            category: category,
+                            quantity: qty,
                             price: price,
                             low_stock_threshold: lowStock,
                             status: status
-                        }
-                    ]);
+                        })
+                        .eq('id', editId);
+                    if (error) throw error;
+                    alert('Product updated successfully!');
+                } else {
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .insert([
+                            {
+                                name: name,
+                                sku: sku,
+                                category: category,
+                                quantity: qty,
+                                price: price,
+                                low_stock_threshold: lowStock,
+                                status: status
+                            }
+                        ]);
+                    if (error) throw error;
+                    alert('Product added successfully!');
+                }
 
-                if (error) throw error;
-
-                alert('Product added successfully!');
                 closeModal();
                 
                 if (typeof updateDashboardStats === 'function') updateDashboardStats();
@@ -923,6 +967,148 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                 }
+            }
+        });
+    }
+});
+
+// ---------- Inventory Product Details Modal (click a card to open) ----------
+let inventoryProductsCache = [];
+let selectedProductId = null;
+
+function formatDateMaybe(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return String(dateStr);
+    // e.g. 11/11/2025
+    return d.toLocaleDateString('en-MY', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+function openProductDetailsModal(p) {
+    const modal = document.getElementById('productDetailsModal');
+    if (!modal || !p) return;
+
+    selectedProductId = String(p.id ?? '');
+
+    const status = getStatusLabel(p);
+    const badgeClass = badgeClassFromStatus(status);
+
+    const qty = Number(p.quantity ?? 0);
+    const price = Number(p.price ?? 0);
+    const total = qty * price;
+
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    setText('pdName', p.name ?? 'Unnamed');
+    setText('pdSku', `SKU : ${p.sku ?? '-'}`);
+    setText('pdQty', String(qty));
+    setText('pdPrice', formatRM(price));
+    setText('pdCategory', p.category ?? '-');
+    setText('pdLowStock', String(Number(p.low_stock_threshold ?? 10)));
+    setText('pdUpdated', formatDateMaybe(p.updated_at || p.created_at));
+    setText('pdTotalValue', formatRM(total));
+
+    const statusEl = document.getElementById('pdStatus');
+    if (statusEl) {
+        statusEl.textContent = status;
+        statusEl.className = `pd-status badge ${badgeClass}`;
+    }
+
+    modal.classList.add('show');
+}
+
+function closeProductDetailsModal() {
+    const modal = document.getElementById('productDetailsModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    selectedProductId = null;
+}
+
+function openAddProductForEdit(p) {
+    const modal = document.getElementById('addProductModal');
+    const form = document.getElementById('addProductForm');
+    const editIdEl = document.getElementById('editProdId');
+    const headerTitle = modal ? modal.querySelector('.modal-header h3') : null;
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+
+    if (!modal || !form || !p) return;
+
+    if (editIdEl) editIdEl.value = String(p.id ?? '');
+    if (headerTitle) headerTitle.textContent = 'Edit Product';
+    if (submitBtn) submitBtn.textContent = 'Save Changes';
+
+    // Prefill
+    document.getElementById('newProdName').value = p.name ?? '';
+    document.getElementById('newProdSku').value = p.sku ?? '';
+    document.getElementById('newProdCategory').value = p.category ?? 'Other';
+    document.getElementById('newProdQty').value = Number(p.quantity ?? 0);
+    document.getElementById('newProdLowStock').value = Number(p.low_stock_threshold ?? 10);
+    document.getElementById('newProdPrice').value = Number(p.price ?? 0);
+
+    modal.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Close button + outside click
+    const pdClose = document.getElementById('pdCloseBtn');
+    const pdModal = document.getElementById('productDetailsModal');
+    if (pdClose) pdClose.addEventListener('click', closeProductDetailsModal);
+    if (pdModal) {
+        pdModal.addEventListener('click', (e) => {
+            if (e.target === pdModal) closeProductDetailsModal();
+        });
+    }
+
+    // Card click delegation (Inventory tab only)
+    const grid = document.getElementById('inventoryGrid');
+    if (grid) {
+        grid.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            if (!card) return;
+            const id = card.getAttribute('data-id');
+            const p = inventoryProductsCache.find(x => String(x.id) === String(id));
+            if (p) openProductDetailsModal(p);
+        });
+    }
+
+    // Edit + Delete buttons in details modal
+    const editBtn = document.getElementById('pdEditBtn');
+    const delBtn = document.getElementById('pdDeleteBtn');
+
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            const p = inventoryProductsCache.find(x => String(x.id) === String(selectedProductId));
+            if (!p) return;
+            closeProductDetailsModal();
+            openAddProductForEdit(p);
+        });
+    }
+
+    if (delBtn) {
+        delBtn.addEventListener('click', async () => {
+            const p = inventoryProductsCache.find(x => String(x.id) === String(selectedProductId));
+            if (!p) return;
+
+            const ok = confirm(`Delete "${p.name ?? 'this product'}"? This cannot be undone.`);
+            if (!ok) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('products')
+                    .delete()
+                    .eq('id', p.id);
+                if (error) throw error;
+
+                closeProductDetailsModal();
+                if (typeof updateDashboardStats === 'function') updateDashboardStats();
+                if (typeof renderInventoryTable === 'function') renderInventoryTable();
+                alert('Product deleted.');
+            } catch (err) {
+                console.error('Delete failed:', err);
+                alert('Failed to delete product: ' + (err.message || err));
             }
         });
     }
@@ -947,3 +1133,196 @@ if (dashboardLink) {
     });
 }
 
+/* SAVE PRODUCT */
+function saveProduct() {
+    const product = {
+        name: productName.value,
+        sku: productSKU.value,
+        category: productCategory.value,
+        price: productPrice.value,
+        quantity: productQuantity.value
+    };
+
+    if (isEditMode) {
+        const index = editIndex.value;
+        inventory[index] = product;
+    } else {
+        inventory.push(product);
+    }
+
+    closeModal();
+    renderInventory();
+}
+
+/* RENDER INVENTORY LIST */
+function renderInventory() {
+    const list = document.getElementById('inventoryList');
+    list.innerHTML = "";
+
+    inventory.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <strong>${item.name}</strong> (SKU: ${item.sku})
+            <span>Qty: ${item.quantity}</span>
+        `;
+        li.onclick = () => openEditMenu(index);
+        list.appendChild(li);
+    });
+}
+
+/* OPEN EDIT MENU */
+function openEditMenu(index) {
+    isEditMode = true;
+
+    const item = inventory[index];
+    editIndex.value = index;
+
+    modalTitle.innerText = "Edit Product";
+    productName.value = item.name;
+    productSKU.value = item.sku;
+    productCategory.value = item.category;
+    productPrice.value = item.price;
+    productQuantity.value = item.quantity;
+
+    deleteBtn.classList.remove('hidden');
+    openModal();
+}
+
+/* DELETE PRODUCT */
+function deleteProduct() {
+    const index = editIndex.value;
+    inventory.splice(index, 1);
+    closeModal();
+    renderInventory();
+}
+
+function openInventoryModal() {
+    inventoryModal.classList.remove('hidden');
+}
+
+function closeInventoryModal() {
+    inventoryModal.classList.add('hidden');
+}
+
+function clearForm() {
+    productName.value = "";
+    productSKU.value = "";
+    productCategory.value = "";
+    productPrice.value = "";
+    productQuantity.value = "";
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const invAddBtn = document.querySelector('#inventoryContent .add-btn');
+  const addProductModal = document.getElementById('addProductModal');
+
+  if (invAddBtn && addProductModal) {
+    invAddBtn.addEventListener('click', () => {
+      // force "add" mode
+      const editIdEl = document.getElementById('editProdId');
+      if (editIdEl) editIdEl.value = '';
+      const headerTitle = addProductModal.querySelector('.modal-header h3');
+      if (headerTitle) headerTitle.textContent = 'Add New Product';
+      const form = document.getElementById('addProductForm');
+      if (form) {
+        form.reset();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Add Product';
+      }
+      addProductModal.style.display = 'block';
+    });
+  }
+});
+
+function getStatusLabel(p) {
+  // Prefer DB status if present, else compute from quantity + threshold
+  if (p.status) return p.status;
+
+  const qty = Number(p.quantity ?? 0);
+  const low = Number(p.low_stock_threshold ?? 10);
+
+  if (qty === 0) return 'Out of Stock';
+  if (qty <= low) return 'Low Stock';
+  return 'In Stock';
+}
+
+function badgeClassFromStatus(status) {
+  const s = String(status).toLowerCase();
+  if (s.includes('out')) return 'out-stock';
+  if (s.includes('low')) return 'low-stock';
+  return 'in-stock';
+}
+
+function formatRM(value) {
+  const n = Number(value ?? 0);
+  return 'RM ' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function buildProductCard(p) {
+  const status = getStatusLabel(p);
+  const badgeClass = badgeClassFromStatus(status);
+
+  return `
+    <div class="product-card" data-id="${p.id}">
+      <div class="product-title">
+        <span>${p.name ?? 'Unnamed'}</span>
+        <span class="badge ${badgeClass}">${status}</span>
+      </div>
+      <div class="product-row">SKU : ${p.sku ?? '-'}</div>
+      <div class="product-info">
+        <div><strong>Quantity</strong><br>${Number(p.quantity ?? 0)}</div>
+        <div><strong>Price</strong><br>${formatRM(p.price)}</div>
+        <div><strong>Category</strong><br>${p.category ?? '-'}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function renderInventoryTable() {
+  const grid = document.getElementById('inventoryGrid');
+  const countEl = document.getElementById('productCount');
+  const searchEl = document.getElementById('inventorySearch');
+
+  if (!grid || !countEl) return;
+
+  grid.innerHTML = '';                // clear
+  countEl.textContent = 'Loading...';
+
+  try {
+    const { data: products, error } = await supabaseClient
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const all = products || [];
+    // cache for product-details modal (click product card)
+    inventoryProductsCache = all;
+    countEl.textContent = `${all.length} products`;
+
+    // Render initial
+    grid.innerHTML = all.map(buildProductCard).join('');
+
+    // Search filter (client-side)
+    if (searchEl) {
+      searchEl.oninput = () => {
+        const q = searchEl.value.trim().toLowerCase();
+        const filtered = all.filter(p =>
+          String(p.name ?? '').toLowerCase().includes(q) ||
+          String(p.sku ?? '').toLowerCase().includes(q) ||
+          String(p.category ?? '').toLowerCase().includes(q)
+        );
+        countEl.textContent = `${filtered.length} products`;
+        grid.innerHTML = filtered.map(buildProductCard).join('');
+      };
+    }
+
+  } catch (err) {
+    console.error('Inventory load failed:', err);
+    countEl.textContent = '0 products';
+    grid.innerHTML = `<p style="color:#6b7280;">Failed to load products. Check console + Supabase table/permissions.</p>`;
+  }
+}
+
+// (Inventory add button wiring is handled above; avoid duplicate listeners.)
