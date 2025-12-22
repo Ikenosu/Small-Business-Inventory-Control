@@ -777,7 +777,7 @@ menuItems.forEach(item => {
         
         if (linkText.includes('dashboard')) {
             document.getElementById('dashboardContent').style.display = 'block';
-            updateDashboardStatdis(); // Refresh stats when opening dashboard
+            updateDashboardStats(); // Refresh stats when opening dashboard
         } 
         else if (linkText.includes('inventory')) {
             document.getElementById('inventoryContent').style.display = 'block';
