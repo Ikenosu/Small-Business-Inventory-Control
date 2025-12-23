@@ -4,6 +4,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const LOW_STOCK_THRESHOLD = 10;
+
 // Global Variables
 let currentUser = null;
 let userSettings = {
@@ -832,6 +834,9 @@ async function updateDashboardStats() {
             maximumFractionDigits: 2  
         });
 
+        renderStockAlerts(products);
+        renderRecentActivity();
+
     } catch (err) {
         console.error('Failed to fetch Dashboard data:', err);
     }
@@ -933,6 +938,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                         .eq('id', editId);
                     if (error) throw error;
+                    activityEditProduct({ name, quantity: qty, price });
                     alert('Product updated successfully!');
                 } else {
                     const { error } = await supabaseClient
@@ -949,6 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         ]);
                     if (error) throw error;
+                    activityAddProduct({name, quantity: qty, price });
                     alert('Product added successfully!');
                 }
 
@@ -1105,6 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeProductDetailsModal();
                 if (typeof updateDashboardStats === 'function') updateDashboardStats();
                 if (typeof renderInventoryTable === 'function') renderInventoryTable();
+                activityDeleteProduct({ name: p.name});
                 alert('Product deleted.');
             } catch (err) {
                 console.error('Delete failed:', err);
@@ -1325,4 +1333,175 @@ async function renderInventoryTable() {
   }
 }
 
+// ---------- Recent Activity System ----------
+
+
+// Save and display recent activities
+function logActivity({ action, productName, quantity, price }) {
+    const name = productName || 'Unnamed';
+    const activity = { action, productName: name, quantity, price, timestamp: Date.now() };
+
+    const activities = JSON.parse(localStorage.getItem('recentActivities')) || [];
+    activities.unshift(activity);
+    localStorage.setItem('recentActivities', JSON.stringify(activities.slice(0, 10)));
+
+    renderRecentActivity();
+}
+
+// Render recent activities in dashboard
+function renderRecentActivity() {
+    const list = document.getElementById('recentActivityList');
+    if (!list) return;
+
+    const activities = JSON.parse(localStorage.getItem('recentActivities')) || [];
+    list.innerHTML = '';
+
+    if (activities.length === 0) {
+        list.innerHTML = `<li class="empty">No recent activity yet</li>`;
+        return;
+    }
+
+    activities.forEach(act => {
+        const li = document.createElement('li');
+        li.className = 'activity-item';
+
+        li.innerHTML = `
+            <div class="activity-grid">
+                <div class="left top">
+                    <span class="activity-title">
+                        <strong>${act.productName}</strong> ${act.action}
+                    </span>
+                </div>
+
+                <div class="right top">
+                    ${act.quantity != null ? `${act.quantity} units` : ''}
+                </div>
+
+                <div class="left bottom">
+                    Updated ${timeAgo(act.timestamp)}
+                </div>
+
+                <div class="right bottom">
+                    ${act.price != null ? `RM ${Number(act.price).toFixed(2)}` : ''}
+                </div>
+            </div>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+// Utility function: format time ago
+function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const secs = Math.floor(diff / 1000);
+    if (secs < 60) return `${secs}s ago`;
+    if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+    if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+    return `${Math.floor(secs / 86400)}d ago`;
+}
+
+// ---------- Hook into product actions ----------
+
+// Call this when adding a product
+function activityAddProduct(product) {
+    logActivity({ 
+        action: 'added', 
+        productName: product.name, 
+        quantity: product.quantity, 
+        price: product.price 
+    });
+}
+
+// Call this when editing a product
+function activityEditProduct(product) {
+    logActivity({ 
+        action: 'edited', 
+        productName: product.name, 
+        quantity: product.quantity, 
+        price: product.price 
+    });
+}
+
+// Call this when deleting a product
+function activityDeleteProduct(product) {
+    logActivity({
+        action: 'deleted',
+        productName: product.name
+    });
+}
+
+// ---------- ALERT SYSTEM MODULE ----------
+function getStockAlerts(products) {
+    return {
+        lowStock: products.filter(
+            p => Number(p.quantity) > 0 && Number(p.quantity) <= (Number(p.low_stock_threshold) || LOW_STOCK_THRESHOLD)
+        ),
+        outOfStock: products.filter(p => Number(p.quantity) === 0)
+    };
+}
+
+function renderStockAlerts(products) {
+    const { lowStock, outOfStock } = getStockAlerts(products);
+
+    const lowStockBox = document.getElementById('lowStockAlertBox');
+    const outStockBox = document.getElementById('outOfStockAlertBox');
+
+
+    // LOW STOCK ALERT
+    if (lowStock.length > 0) {
+        lowStockBox.style.display = 'block';
+        lowStockBox.querySelector('.alert-count').textContent = `${lowStock.length} items need attention`;
+    lowStockBox.querySelector('.alert-list').innerHTML = lowStock.map(p => `
+        <div class="alert-item">
+            <div class="alert-grid">
+                <div class="name">${p.name}</div>
+                <div class="qty">${p.quantity} left</div>
+
+                <div class="sku">SKU: ${p.sku}</div>
+                <div class="min">Min: ${p.low_stock_threshold ?? LOW_STOCK_THRESHOLD}</div>
+            </div>
+        </div>
+    `).join('');
+    } else {
+    lowStockBox.style.display = 'block';
+    lowStockBox.querySelector('.alert-count').textContent = '';
+    lowStockBox.querySelector('.alert-list').innerHTML =
+        `<div class="alert-empty">No items low on stock</div>`;
+
+    }
+
+    // OUT OF STOCK
+    if (outOfStock.length > 0) {
+        outStockBox.style.display = 'block'; 
+        outStockBox.querySelector('.alert-count').textContent =
+            `${outOfStock.length} items unavailable`;
+        
+        outStockBox.querySelector('.alert-list').innerHTML = outOfStock.map(p => `
+            <div class="alert-item"> 
+                <div>
+                    <strong>${p.name}</strong>
+                    <div class="sku">SKU: ${p.sku}</div>
+                </div>
+                <span class="badge out">Out of Stock</span>
+            </div>
+        `).join('');
+    } else {
+    outStockBox.style.display = 'block';
+    outStockBox.querySelector('.alert-count').textContent = '';
+    outStockBox.querySelector('.alert-list').innerHTML =
+        `<div class="alert-empty">No items out of stock</div>`;
+    }
+}
+
+
+
+// ---------- INITIAL RENDER ----------
+document.addEventListener('DOMContentLoaded', () => {
+    renderRecentActivity();
+});
+
+
+lowStockContainer.innerHTML = "";
+outStockContainer.innerHTML = "";
 // (Inventory add button wiring is handled above; avoid duplicate listeners.)
