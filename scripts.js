@@ -804,7 +804,8 @@ async function updateDashboardStats() {
     try {
         const { data: products, error } = await supabaseClient
             .from('products')
-            .select('*');
+            .select('*')
+            .eq('user_id', currentUser.id);
 
         if (error) throw error;
 
@@ -931,7 +932,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             low_stock_threshold: lowStock,
                             status: status
                         })
-                        .eq('id', editId);
+                        .eq('id', editId)
+                        .eq('user_id', currentUser.id);
                     if (error) throw error;
                     alert('Product updated successfully!');
                 } else {
@@ -945,7 +947,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 quantity: qty,
                                 price: price,
                                 low_stock_threshold: lowStock,
-                                status: status
+                                status: status,
+                                user_id: currentUser.id
                             }
                         ]);
                     if (error) throw error;
@@ -1099,7 +1102,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { error } = await supabaseClient
                     .from('products')
                     .delete()
-                    .eq('id', p.id);
+                    .eq('id', p.id)
+                    .eq('user_id', currentUser.id);
                 if (error) throw error;
 
                 closeProductDetailsModal();
@@ -1292,6 +1296,7 @@ async function renderInventoryTable() {
     const { data: products, error } = await supabaseClient
       .from('products')
       .select('*')
+      .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
