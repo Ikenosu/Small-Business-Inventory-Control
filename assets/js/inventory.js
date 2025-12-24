@@ -14,6 +14,30 @@ let selectedProductId = null;
 let currentUserId = null;
 let inventoryFilteredCache = [];
 
+function getUserDateFormat() {
+    const settings = JSON.parse(localStorage.getItem('inventorypro.settings'));
+    return settings?.preferences?.dateFormat || 'DD/MM/YYYY';
+}
+
+function formatDateByPreference(dateInput) {
+    if (!dateInput) return 'N/A';
+
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    switch (getUserDateFormat()) {
+        case 'MM/DD/YYYY':
+            return `${month}/${day}/${year}`;
+        case 'YYYY/MM/DD':
+            return `${year}/${month}/${day}`;
+        case 'DD/MM/YYYY':
+        default:
+            return `${day}/${month}/${year}`;
+    }
+}
+
 /* =========================
    Page Init (same pattern as dashboard)
 ========================= */
@@ -69,7 +93,7 @@ function formatDateMaybe(dateStr) {
   if (!dateStr) return '-';
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return String(dateStr);
-  return d.toLocaleDateString('en-MY', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  return formatDateByPreference(d);
 }
 
 function escapeHtml(s) {

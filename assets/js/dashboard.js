@@ -3,6 +3,8 @@ import { getSupabaseClient, formatRM, openModal, closeModal, initThemeFromStorag
 
 const supabase = getSupabaseClient();
 
+let dashboardSettings = null; // loaded from user_profiles.settings
+
 /* =========================
    Page Init
 ========================= */
@@ -19,7 +21,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   await fillSidebar(user);
-  await updateDashboardStats(user.id);
+
+// ✅ load settings saved from profile (DB)
+dashboardSettings = await loadDashboardSettings(user.id);
+
+// ✅ pass settings into renderer
+await updateDashboardStats(user.id, dashboardSettings);
 });
 
 /* =========================
@@ -81,10 +88,45 @@ async function fillSidebar(user) {
   setText('sidebarAvatar', initials);
 }
 
+
+/* =========================
+   Settings Loader (from Profile)
+========================= */
+async function loadDashboardSettings(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('settings')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) throw error;
+    return normalizeSettings(data?.settings || null);
+  } catch (e) {
+    // fallback to defaults (and allow theme/localStorage to still work independently)
+    return normalizeSettings(null);
+  }
+}
+
+function normalizeSettings(settings) {
+  const s = settings && typeof settings === 'object' ? settings : {};
+  s.notifications = s.notifications && typeof s.notifications === 'object' ? s.notifications : {};
+  s.preferences = s.preferences && typeof s.preferences === 'object' ? s.preferences : {};
+
+  // notifications defaults
+  if (typeof s.notifications.lowStockAlert !== 'boolean') s.notifications.lowStockAlert = true;
+  if (typeof s.notifications.outOfStockAlert !== 'boolean') s.notifications.outOfStockAlert = true;
+
+  // preferences defaults
+  if (typeof s.preferences.dashboardStockAlerts !== 'boolean') s.preferences.dashboardStockAlerts = true;
+
+  return s;
+}
+
 /* =========================
    Dashboard Loader
 ========================= */
-export async function updateDashboardStats(userId) {
+export async function updateDashboardStats(userId, settings = dashboardSettings) {
 
   setText('dashboardTotalProducts', '...');
   setText('dashboardLowStock', '...');
@@ -100,7 +142,7 @@ export async function updateDashboardStats(userId) {
     if (error) throw error;
 
     renderStats(products);
-    renderLowStockAndOutStock(products);
+    renderLowStockAndOutStock(products, settings);
     renderRecentActivity(products);
 
   } catch (err) {
@@ -135,24 +177,39 @@ function renderStats(products) {
   setText('dashboardTotalValue', formatRM(totalValue));
 }
 
-function renderLowStockAndOutStock(products) {
+function renderLowStockAndOutStock(products, settings) {
   const lowBox = document.getElementById('lowStockAlertBox');
   const outBox = document.getElementById('outOfStockAlertBox');
   if (!lowBox || !outBox) return;
+  // Visibility rules:
+  // 1) Preferences → master switch for *all* dashboard stock alerts
+  // 2) Notification toggles → control each alert box individually
+  const masterOn = settings?.preferences?.dashboardStockAlerts !== false;
+  const showLow = masterOn && settings?.notifications?.lowStockAlert !== false;
+  const showOut = masterOn && settings?.notifications?.outOfStockAlert !== false;
 
-  const low = products.filter(p => p.quantity > 0 && p.quantity <= (p.low_stock_threshold ?? 10));
-  const out = products.filter(p => p.quantity === 0);
+  lowBox.style.display = showLow ? '' : 'none';
+  outBox.style.display = showOut ? '' : 'none';
 
-  lowBox.querySelector('.alert-count').textContent = low.length;
-  outBox.querySelector('.alert-count').textContent = out.length;
+  // If both are hidden, don't waste time rendering content.
+  if (!showLow && !showOut) return;
 
-  lowBox.querySelector('.alert-list').innerHTML =
-    low.length ? low.map(p => `<div>${p.name} (${p.quantity})</div>`).join('') :
-    '<div class="empty">No low stock items</div>';
+  const low = products.filter(p => Number(p.quantity) > 0 && Number(p.quantity) <= Number(p.low_stock_threshold ?? 10));
+  const out = products.filter(p => Number(p.quantity) === 0);
 
-  outBox.querySelector('.alert-list').innerHTML =
-    out.length ? out.map(p => `<div>${p.name}</div>`).join('') :
-    '<div class="empty">No out of stock items</div>';
+  if (showLow) {
+    lowBox.querySelector('.alert-count').textContent = low.length;
+    lowBox.querySelector('.alert-list').innerHTML =
+      low.length ? low.map(p => `<div>${p.name} (${p.quantity})</div>`).join('') :
+      '<div class="empty">No low stock items</div>';
+  }
+
+  if (showOut) {
+    outBox.querySelector('.alert-count').textContent = out.length;
+    outBox.querySelector('.alert-list').innerHTML =
+      out.length ? out.map(p => `<div>${p.name}</div>`).join('') :
+      '<div class="empty">No out of stock items</div>';
+  }
 }
 
 function renderRecentActivity(products) {

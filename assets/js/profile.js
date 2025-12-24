@@ -351,6 +351,9 @@ function wireProfileUI() {
 
       if (error) throw error;
 
+      // keep a local copy so other pages (e.g., dashboard) can react immediately
+      try { localStorage.setItem('inventorypro.settings', JSON.stringify(s)); } catch (e) {}
+
       closeModal('notificationModal');
       alert('Notification settings saved successfully!');
     } catch (err) {
@@ -485,6 +488,9 @@ function wireProfileUI() {
 
       if (error) throw error;
 
+      // keep a local copy so other pages (e.g., dashboard) can react immediately
+      try { localStorage.setItem('inventorypro.settings', JSON.stringify(s)); } catch (e) {}
+
       // apply theme immediately if you have a theme selector (optional)
       applyTheme(s.preferences.theme, s);
 
@@ -594,3 +600,13 @@ function syncThemeButtonsFromSettings() {
     btn.classList.toggle('active', t === theme);
   });
 }
+
+document.addEventListener('click', (e) => {
+    const modalTarget = e.target.closest('[data-modal]');
+    if (!modalTarget) return;
+
+    const modalId = modalTarget.dataset.modal;
+    if (modalId) {
+        closeModal(modalId);
+    }
+});
