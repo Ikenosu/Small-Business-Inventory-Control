@@ -172,7 +172,7 @@ export function wireInventoryUI() {
     // quick cache check
     const cacheHit = findSkuInCache(sku, editId);
     if (cacheHit) {
-      setSkuHint('bad', `✖ SKU 已存在：${cacheHit.sku}（Product: ${cacheHit.name || '-'}）`);
+      setSkuHint('bad', `✖ SKU already exists!：${cacheHit.sku}（Product: ${cacheHit.name || '-'}）`);
       return;
     }
 
@@ -183,9 +183,9 @@ export function wireInventoryUI() {
       if (!currentUserId) return;
       const res = await skuExistsInDb(currentUserId, sku, editId);
       if (res.exists) {
-        setSkuHint('bad', `✖ SKU 已存在：${res.product.sku}（Product: ${res.product.name || '-'}）`);
+        setSkuHint('bad', `✖ SKU already exists!：${res.product.sku}（Product: ${res.product.name || '-'}）`);
       } else {
-        setSkuHint('ok', '✔ SKU 可用');
+        setSkuHint('ok', '✔ SKU available!');
       }
     }, 250);
   });
@@ -245,14 +245,14 @@ export function wireInventoryUI() {
     // ✅ final SKU check before save
     const cacheHit2 = findSkuInCache(sku, editId);
     if (cacheHit2) {
-      setSkuHint('bad', `✖ SKU 已存在：${cacheHit2.sku}（Product: ${cacheHit2.name || '-'}）`);
+      setSkuHint('bad', `✖ SKU already exists!：${cacheHit2.sku}（Product: ${cacheHit2.name || '-'}）`);
       alert('SKU already exists. Please use a unique SKU.');
       return;
     }
 
     const dbCheck = await skuExistsInDb(user.id, sku, editId);
     if (dbCheck.exists) {
-      setSkuHint('bad', `✖ SKU 已存在：${dbCheck.product.sku}（Product: ${dbCheck.product.name || '-'}）`);
+      setSkuHint('bad', `✖ SKU already exists!：${dbCheck.product.sku}（Product: ${dbCheck.product.name || '-'}）`);
       alert('SKU already exists. Please use a unique SKU.');
       return;
     }
