@@ -12,6 +12,7 @@ const supabase = getSupabaseClient();
 let inventoryProductsCache = [];
 let selectedProductId = null;
 let currentUserId = null;
+let inventoryFilteredCache = [];
 
 /* =========================
    Page Init (same pattern as dashboard)
@@ -21,6 +22,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   wirePageButtons();     // ✅ logout modal + modal close
   wireInventoryUI();     // ✅ inventory clicks + form submit + sku check
+  wireInventorySearch();
 
   const { data: userRes, error: userErr } = await supabase.auth.getUser();
   const user = userRes?.user;
@@ -104,7 +106,14 @@ async function loadInventory(userId) {
   }
 
   inventoryProductsCache = data || [];
-  renderInventoryGrid(inventoryProductsCache);
+  const q = document.getElementById('inventorySearch')?.value?.trim();
+  if (q) {
+    // trigger filtering again using the current query
+    const input = document.getElementById('inventorySearch');
+    input.dispatchEvent(new Event('input'));
+  } else {
+    renderInventoryGrid(inventoryProductsCache);
+  }
 }
 
 /* =========================
@@ -189,6 +198,49 @@ export function wireInventoryUI() {
       }
     }, 250);
   });
+
+  function wireInventorySearch() {
+  const input = document.getElementById('inventorySearch');
+  if (!input) return;
+
+  const debounce = (fn, delay = 120) => {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), delay);
+    };
+  };
+
+  const applySearch = () => {
+    const q = (input.value || '').trim().toLowerCase();
+
+    if (!q) {
+      inventoryFilteredCache = [...inventoryProductsCache];
+      renderInventoryGrid(inventoryProductsCache);
+      return;
+    }
+
+    const filtered = inventoryProductsCache.filter(p => {
+      const name = String(p.name || '').toLowerCase();
+      const sku = String(p.sku || '').toLowerCase();
+      const category = String(p.category || '').toLowerCase();
+      return name.includes(q) || sku.includes(q) || category.includes(q);
+    });
+
+    inventoryFilteredCache = filtered;
+    renderInventoryGrid(filtered);
+  };
+
+  input.addEventListener('input', debounce(applySearch, 120));
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      inventoryFilteredCache = [...inventoryProductsCache];
+      renderInventoryGrid(inventoryProductsCache);
+    }
+  });
+}
 
   // ===== Add Product Modal wiring =====
   const addModal = document.getElementById('addProductModal');
