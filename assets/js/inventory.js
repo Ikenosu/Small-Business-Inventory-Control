@@ -404,7 +404,8 @@ export function wireInventoryUI() {
     const { error } = await supabase
       .from('products')
       .delete()
-      .eq('id', selectedProductId);
+      .eq('id', selectedProductId)
+      .eq('user_id', currentUserId);
 
     if (error) {
       console.error(error);
@@ -418,6 +419,583 @@ export function wireInventoryUI() {
 
     closeProductDetailsModal();
   });
+      if (window.__exportUIWired) {
+        return;
+      }
+      window.__exportUIWired = true;
+    // ===== Export Modal wiring + logic =====
+    const exportModal = document.getElementById('exportModal');
+    const openExportBtn = document.getElementById('openExportBtn');
+    const closeExportModalBtn = document.getElementById('closeExportModal');
+    const cancelExportBtn = document.getElementById('cancelExportBtn');
+
+    const exportForm = document.getElementById('exportForm');
+
+    const expVendorName = document.getElementById('expVendorName');
+    const expVendorPhone = document.getElementById('expVendorPhone');
+    const expVendorEmail = document.getElementById('expVendorEmail');
+
+    const expSku = document.getElementById('expSku');
+    const expQty = document.getElementById('expQty');
+
+    const expProductName = document.getElementById('expProductName');
+    const expUnitPrice = document.getElementById('expUnitPrice');
+    const expTotalPrice = document.getElementById('expTotalPrice');
+
+    const expSkuHint = document.getElementById('expSkuHint');
+    const expQtyHint = document.getElementById('expQtyHint');
+
+    let expSelectedProduct = null;
+    let skuLookupTimer = null;
+
+    function openExportModal() {
+      if (!exportModal) return;
+      exportModal.classList.add('show');
+
+      // reset fields
+      exportForm?.reset();
+      expProductName.value = '';
+      expUnitPrice.value = '';
+      expTotalPrice.value = '';
+      expSkuHint.textContent = '';
+      expQtyHint.textContent = '';
+      expSelectedProduct = null;
+    }
+
+    function closeExportModal() {
+      if (!exportModal) return;
+      exportModal.classList.remove('show');
+    }
+
+    openExportBtn?.addEventListener('click', openExportModal);
+    closeExportModalBtn?.addEventListener('click', closeExportModal);
+    cancelExportBtn?.addEventListener('click', closeExportModal);
+
+    // click outside to close
+    exportModal?.addEventListener('click', (e) => {
+      if (e.target === exportModal) closeExportModal();
+    });
+
+    function setSkuStatus(type, msg) {
+      if (!expSkuHint) return;
+      expSkuHint.textContent = msg || '';
+      expSkuHint.style.color = (type === 'bad') ? '#c0392b' : (type === 'ok' ? '#2e7d32' : '');
+    }
+
+    function setQtyStatus(type, msg) {
+      if (!expQtyHint) return;
+      expQtyHint.textContent = msg || '';
+      expQtyHint.style.color = (type === 'bad') ? '#c0392b' : (type === 'ok' ? '#2e7d32' : '');
+    }
+
+    function toNumber(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function recalcExportTotal() {
+      const qty = toNumber(expQty.value);
+      const unit = expSelectedProduct ? toNumber(expSelectedProduct.price) : 0;
+      const total = qty * unit;
+
+      expTotalPrice.value = formatRM(total);
+
+      // validate qty vs stock
+      if (!expSelectedProduct) {
+        setQtyStatus('', '');
+        return;
+      }
+
+      if (qty <= 0) {
+        setQtyStatus('bad', 'Quantity must be at least 1.');
+        return;
+      }
+
+      if (qty > toNumber(expSelectedProduct.quantity)) {
+        setQtyStatus('bad', `Insufficient stock. Available: ${expSelectedProduct.quantity}`);
+      } else {
+        setQtyStatus('ok', `Available stock: ${expSelectedProduct.quantity}`);
+      }
+    }
+
+  // SKU lookup (auto fill) - FINAL: never show "not found" while typing
+  let skuReqSeq = 0;
+  const MIN_SKU_LEN = 3;
+  function clearSkuAutofill() {
+    expSelectedProduct = null;
+    expProductName.value = '';
+    expUnitPrice.value = '';
+    expTotalPrice.value = '';
+    setQtyStatus('', '');
+  }
+
+  function normalizeSku(s) {
+    return String(s || '').trim();
+  }
+
+  async function lookupSkuExact(userId, skuRaw) {
+    const sku = normalizeSku(skuRaw);
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, name, sku, quantity, price, user_id')
+      .eq('user_id', userId)
+      .ilike('sku', sku)
+      .limit(1);
+
+    return { data, error };
+  }
+
+  expSku?.addEventListener('input', () => {
+    const sku = normalizeSku(expSku.value);
+
+    skuReqSeq += 1;
+    const mySeq = skuReqSeq;
+
+    clearSkuAutofill();
+
+    if (!sku) {
+      setSkuStatus('', '');
+      if (skuLookupTimer) clearTimeout(skuLookupTimer);
+      return;
+    }
+
+    if (sku.length < MIN_SKU_LEN) {
+      setSkuStatus('', '');
+      if (skuLookupTimer) clearTimeout(skuLookupTimer);
+      return;
+    }
+
+    const cacheHit = inventoryProductsCache.find(
+      p => normalizeSku(p.sku).toLowerCase() === sku.toLowerCase()
+    );
+
+    if (cacheHit) {
+      expSelectedProduct = cacheHit;
+      expProductName.value = cacheHit.name || '';
+      expUnitPrice.value = formatRM(toNumber(cacheHit.price));
+      setSkuStatus('ok', '✔ Product found');
+      recalcExportTotal();
+      return;
+    }
+
+    // debounce DB lookup
+    if (skuLookupTimer) clearTimeout(skuLookupTimer);
+    setSkuStatus('', 'Searching...');
+
+    skuLookupTimer = setTimeout(async () => {
+      if (mySeq !== skuReqSeq) return;
+      if (!currentUserId) return;
+
+      const { data, error } = await lookupSkuExact(currentUserId, sku);
+
+      if (mySeq !== skuReqSeq) return;
+
+      if (error) {
+        console.error(error);
+        setSkuStatus('bad', 'Lookup error. Please try again.');
+        return;
+      }
+
+      const product = data?.[0];
+      if (!product) {
+        setSkuStatus('', '');
+        return;
+      }
+
+      expSelectedProduct = product;
+      expProductName.value = product.name || '';
+      expUnitPrice.value = formatRM(toNumber(product.price));
+      setSkuStatus('ok', '✔ Product found');
+      recalcExportTotal();
+    }, 450);
+  });
+
+  expSku?.addEventListener('keydown', async (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+
+    const sku = normalizeSku(expSku.value);
+    if (!sku || sku.length < MIN_SKU_LEN) return;
+
+    if (expSelectedProduct) return;
+
+    if (!currentUserId) return;
+
+    setSkuStatus('', 'Searching...');
+    const { data, error } = await lookupSkuExact(currentUserId, sku);
+
+    if (error) {
+      console.error(error);
+      setSkuStatus('bad', 'Lookup error. Please try again.');
+      return;
+    }
+
+    const product = data?.[0];
+    if (!product) {
+      setSkuStatus('bad', '✖ No product found for this SKU.');
+      return;
+    }
+
+    expSelectedProduct = product;
+    expProductName.value = product.name || '';
+    expUnitPrice.value = formatRM(toNumber(product.price));
+    setSkuStatus('ok', '✔ Product found');
+    recalcExportTotal();
+  });
+
+  expSku?.addEventListener('blur', async () => {
+    const sku = normalizeSku(expSku.value);
+    if (!sku || sku.length < MIN_SKU_LEN) return;
+
+    if (expSelectedProduct) return;
+    if (!currentUserId) return;
+
+    const { data } = await lookupSkuExact(currentUserId, sku);
+    const product = data?.[0];
+    if (!product) {
+      setSkuStatus('bad', '✖ No product found for this SKU.');
+    }
+  });
+
+// qty change recalculation
+expQty?.addEventListener('input', recalcExportTotal);
+
+    // qty change recalculation
+    expQty?.addEventListener('input', recalcExportTotal);
+
+  if (exportForm && exportForm.dataset.bound !== '1') {
+    exportForm.dataset.bound = '1';
+
+    let exporting = false;
+
+    exportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (exporting) return;
+      exporting = true;
+
+      try {
+        if (!currentUserId) {
+          alert('Not signed in.');
+          return;
+        }
+
+        const vendor_name = expVendorName.value.trim();
+        const vendor_phone = expVendorPhone.value.trim();
+        const vendor_email = expVendorEmail.value.trim();
+        const sku = expSku.value.trim();
+        const quantity = toNumber(expQty.value);
+
+        if (!vendor_name) {
+          alert('Please enter Vendor Name.');
+          return;
+        }
+        if (!sku) {
+          alert('Please enter SKU.');
+          return;
+        }
+        if (!expSelectedProduct) {
+          alert('No product found for this SKU.');
+          return;
+        }
+        if (quantity <= 0) {
+          alert('Quantity must be at least 1.');
+          return;
+        }
+        if (quantity > toNumber(expSelectedProduct.quantity)) {
+          alert(`Insufficient stock. Available: ${expSelectedProduct.quantity}`);
+          return;
+        }
+
+        const unit_price = toNumber(expSelectedProduct.price);
+        const total_amount = unit_price * quantity;
+
+        const { error: insErr } = await supabase
+          .from('export_records')
+          .insert([{
+            user_id: currentUserId,
+            product_id: expSelectedProduct.id,
+            product_name: expSelectedProduct.name || '',
+            quantity,
+            vendor_name,
+            vendor_email: vendor_email || null,
+            vendor_phone: vendor_phone || null,
+            unit_price,
+            total_amount,
+            exported_at: new Date().toISOString()
+          }]);
+
+        if (insErr) {
+          console.error(insErr);
+          alert('Failed to save export record.');
+          return;
+        }
+
+        const newQty = toNumber(expSelectedProduct.quantity) - quantity;
+
+        const { error: updErr } = await supabase
+          .from('products')
+          .update({ quantity: newQty })
+          .eq('id', expSelectedProduct.id)
+          .eq('user_id', currentUserId);
+
+        if (updErr) {
+          console.error(updErr);
+          alert('Export record saved, but failed to deduct stock. Please refresh and check.');
+          return;
+        }
+
+        alert('Export successful!');
+        closeExportModal();
+
+        // refresh inventory list
+        await loadInventory(currentUserId);
+
+      } finally {
+        exporting = false;
+      }
+    });
+  }
+
+  // ===============================
+  // Import Modal wiring + logic
+  // ===============================
+  const importModal = document.getElementById('importModal');
+  const openImportBtn = document.getElementById('openImportBtn');
+  const closeImportModalBtn = document.getElementById('closeImportModal');
+  const cancelImportBtn = document.getElementById('cancelImportBtn');
+
+  const importForm = document.getElementById('importForm');
+
+  const impSku = document.getElementById('impSku');
+  const impQty = document.getElementById('impQty');
+
+  const impProductName = document.getElementById('impProductName');
+  const impUnitPrice = document.getElementById('impUnitPrice');
+  const impCurrentStock = document.getElementById('impCurrentStock');
+  const impTotalAmount = document.getElementById('impTotalAmount');
+
+  const impSkuHint = document.getElementById('impSkuHint');
+  const impQtyHint = document.getElementById('impQtyHint');
+
+  let impSelectedProduct = null;
+
+  // UI helpers
+  function setImpSkuStatus(type, msg) {
+    if (!impSkuHint) return;
+    impSkuHint.textContent = msg || '';
+    impSkuHint.style.color = (type === 'bad') ? '#c0392b' : (type === 'ok' ? '#2e7d32' : '');
+  }
+  function setImpQtyStatus(type, msg) {
+    if (!impQtyHint) return;
+    impQtyHint.textContent = msg || '';
+    impQtyHint.style.color = (type === 'bad') ? '#c0392b' : (type === 'ok' ? '#2e7d32' : '');
+  }
+  function clearImpAutofill() {
+    impSelectedProduct = null;
+    if (impProductName) impProductName.value = '';
+    if (impUnitPrice) impUnitPrice.value = '';
+    if (impCurrentStock) impCurrentStock.value = '';
+    if (impTotalAmount) impTotalAmount.value = '';
+    setImpQtyStatus('', '');
+  }
+  function recalcImportTotal() {
+    const qty = Number(impQty?.value || 0);
+    const unit = impSelectedProduct ? Number(impSelectedProduct.price || 0) : 0;
+    const total = qty * unit;
+    if (impTotalAmount) impTotalAmount.value = formatRM(total);
+
+    if (!impSelectedProduct) return;
+    if (qty <= 0) {
+      setImpQtyStatus('bad', 'Quantity must be at least 1.');
+    } else {
+      setImpQtyStatus('ok', 'Ready to import.');
+    }
+  }
+
+  // open/close
+  function openImportModal() {
+    if (!importModal) return;
+    importModal.classList.add('show');
+    importForm?.reset();
+    clearImpAutofill();
+    setImpSkuStatus('', '');
+  }
+  function closeImportModal() {
+    if (!importModal) return;
+    importModal.classList.remove('show');
+  }
+
+  openImportBtn?.addEventListener('click', openImportModal);
+  closeImportModalBtn?.addEventListener('click', closeImportModal);
+  cancelImportBtn?.addEventListener('click', closeImportModal);
+  importModal?.addEventListener('click', (e) => { if (e.target === importModal) closeImportModal(); });
+
+  // SKU lookup (same UX rule as export: don't show not found while typing)
+  let impSkuLookupTimer = null;
+  let impSkuReqSeq = 0;
+  const IMP_MIN_SKU_LEN = 3;
+
+  function normalizeSku(s) { return String(s || '').trim(); }
+
+  async function lookupProductBySku(userId, skuRaw) {
+    const sku = normalizeSku(skuRaw);
+    return await supabase
+      .from('products')
+      .select('id, name, sku, quantity, price, user_id')
+      .eq('user_id', userId)
+      .ilike('sku', sku)
+      .limit(1);
+  }
+
+  impSku?.addEventListener('input', () => {
+    const sku = normalizeSku(impSku.value);
+
+    impSkuReqSeq += 1;
+    const mySeq = impSkuReqSeq;
+
+    clearImpAutofill();
+
+    if (!sku) {
+      setImpSkuStatus('', '');
+      if (impSkuLookupTimer) clearTimeout(impSkuLookupTimer);
+      return;
+    }
+
+    if (sku.length < IMP_MIN_SKU_LEN) {
+      setImpSkuStatus('', '');
+      if (impSkuLookupTimer) clearTimeout(impSkuLookupTimer);
+      return;
+    }
+
+    // cache first
+    const cacheHit = inventoryProductsCache.find(
+      p => normalizeSku(p.sku).toLowerCase() === sku.toLowerCase()
+    );
+
+    if (cacheHit) {
+      impSelectedProduct = cacheHit;
+      if (impProductName) impProductName.value = cacheHit.name || '';
+      if (impUnitPrice) impUnitPrice.value = formatRM(Number(cacheHit.price || 0));
+      if (impCurrentStock) impCurrentStock.value = String(Number(cacheHit.quantity || 0));
+      setImpSkuStatus('ok', '✔ Product found');
+      recalcImportTotal();
+      return;
+    }
+
+    if (impSkuLookupTimer) clearTimeout(impSkuLookupTimer);
+    setImpSkuStatus('', 'Searching...');
+
+    impSkuLookupTimer = setTimeout(async () => {
+      if (mySeq !== impSkuReqSeq) return;
+      if (!currentUserId) return;
+
+      const { data, error } = await lookupProductBySku(currentUserId, sku);
+
+      if (mySeq !== impSkuReqSeq) return;
+
+      if (error) {
+        console.error(error);
+        setImpSkuStatus('bad', 'Lookup error. Please try again.');
+        return;
+      }
+
+      const product = data?.[0];
+      if (!product) {
+        setImpSkuStatus('', '');
+        return;
+      }
+
+      impSelectedProduct = product;
+      if (impProductName) impProductName.value = product.name || '';
+      if (impUnitPrice) impUnitPrice.value = formatRM(Number(product.price || 0));
+      if (impCurrentStock) impCurrentStock.value = String(Number(product.quantity || 0));
+      setImpSkuStatus('ok', '✔ Product found');
+      recalcImportTotal();
+    }, 450);
+  });
+
+  // Enter / Blur show final not found
+  impSku?.addEventListener('blur', async () => {
+    const sku = normalizeSku(impSku.value);
+    if (!sku || sku.length < IMP_MIN_SKU_LEN) return;
+    if (impSelectedProduct) return;
+    if (!currentUserId) return;
+
+    const { data } = await lookupProductBySku(currentUserId, sku);
+    if (!data?.[0]) setImpSkuStatus('bad', '✖ No product found for this SKU.');
+  });
+
+  impQty?.addEventListener('input', recalcImportTotal);
+
+  // submit import
+  if (importForm && importForm.dataset.bound !== '1') {
+    importForm.dataset.bound = '1';
+
+    let importing = false;
+
+    importForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (importing) return;
+      importing = true;
+
+      try {
+        if (!currentUserId) return alert('Not signed in.');
+
+        const sku = normalizeSku(impSku?.value);
+        const qty = Number(impQty?.value || 0);
+
+        if (!sku) return alert('Please enter SKU.');
+        if (!impSelectedProduct) return alert('No product found for this SKU.');
+        if (!Number.isFinite(qty) || qty <= 0) return alert('Quantity must be at least 1.');
+
+        const unit_price = Number(impSelectedProduct.price || 0);
+        const total_amount = unit_price * qty;
+
+        // 1) log import
+        const { error: insErr } = await supabase
+          .from('import_records')
+          .insert([{
+            user_id: currentUserId,
+            product_id: impSelectedProduct.id,
+            product_name: impSelectedProduct.name || '',
+            quantity: qty,
+            unit_price,
+            total_amount,
+            imported_at: new Date().toISOString()
+          }]);
+
+        if (insErr) {
+          console.error(insErr);
+          alert('Failed to save import record.');
+          return;
+        }
+
+        // 2) add stock
+        const newQty = Number(impSelectedProduct.quantity || 0) + qty;
+
+        const { error: updErr } = await supabase
+          .from('products')
+          .update({ quantity: newQty })
+          .eq('id', impSelectedProduct.id)
+          .eq('user_id', currentUserId);
+
+        if (updErr) {
+          console.error(updErr);
+          alert('Import record saved, but failed to add stock. Please refresh and check.');
+          return;
+        }
+
+        alert('Import successful!');
+        closeImportModal();
+        await loadInventory(currentUserId);
+
+      } finally {
+        importing = false;
+      }
+    });
+  }
 }
 
 function wireInventorySearch() {
@@ -530,7 +1108,7 @@ function openProductDetailsModal(product) {
   setText('pdPrice', formatRM(Number(product.price ?? 0)));
   setText('pdCategory', product.category || '-');
   setText('pdLowStock', String(Number(product.low_stock_threshold ?? 10)));
-  setText('pdUpdated', formatDateMaybe(product.created_at || product.updated_at));
+  setText('pdUpdated', formatDateMaybe(product.updated_at || product.created_at));
 
   const qty = Number(product.quantity ?? 0);
   const low = Number(product.low_stock_threshold ?? 10);

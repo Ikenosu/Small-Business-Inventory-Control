@@ -510,8 +510,7 @@ body.dark-theme #productDetailsModal .modal-content *[class*="button"] {
   background-color: transparent;
 }
 
-body.dark-theme .product-details-actions button,
-body.dark-theme .modal-actions button {
+body.dark-theme .product-details-actions button {
   width: 100%;
   border-radius: 12px;
 }
@@ -2633,3 +2632,676 @@ input:checked + .toggle-slider:before {
     font-weight: 600;
     color: #065f46;
 }
+/* =========================================================
+   REPORTS: dark theme compatibility (YOU USE body.dark-theme)
+   Put this at the VERY BOTTOM of your CSS
+========================================================= */
+
+/* Tracks in dark */
+body.dark-theme.page-reports .bar-track,
+body.dark-theme.page-reports .cat-track{
+  background: rgba(255,255,255,0.12) !important;
+}
+
+/* KPI numbers fallback (order: 1 Total, 2 In, 3 Out, 4 Net) */
+body.dark-theme.page-reports .reports-kpi .kpi-card:nth-child(2) .kpi-value{ color:#60a5fa !important; }
+body.dark-theme.page-reports .reports-kpi .kpi-card:nth-child(3) .kpi-value{ color:#fca5a5 !important; }
+body.dark-theme.page-reports .reports-kpi .kpi-card:nth-child(4) .kpi-value{ color:#5eead4 !important; }
+
+/* Stock Movement bar colors by row order */
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-fill,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #60a5fa, #2563eb) !important;
+}
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(2) .bar-fill,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(2) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #fca5a5, #b91c1c) !important;
+}
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(3) .bar-fill,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(3) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #5eead4, #0f766e) !important;
+}
+
+/* Category fill */
+body.dark-theme.page-reports .cat-fill,
+body.dark-theme.page-reports .cat-track > *:first-child{
+  background: linear-gradient(90deg, #a78bfa, #7c3aed) !important;
+}
+
+/* Category % number colors (right side) */
+body.dark-theme.page-reports .category-list .cat-row > :last-child{
+  font-weight: 900 !important;
+}
+body.dark-theme.page-reports .category-list .cat-row:nth-child(1) > :last-child{ color:#c4b5fd !important; }
+body.dark-theme.page-reports .category-list .cat-row:nth-child(2) > :last-child{ color:#93c5fd !important; }
+body.dark-theme.page-reports .category-list .cat-row:nth-child(3) > :last-child{ color:#5eead4 !important; }
+
+/* Badges in dark */
+body.dark-theme.page-reports .badge-import{ background: rgba(59,130,246,.18) !important; color:#bfdbfe !important; border-color: rgba(59,130,246,.25) !important; }
+body.dark-theme.page-reports .badge-export{ background: rgba(239,68,68,.18) !important; color:#fecaca !important; border-color: rgba(239,68,68,.25) !important; }
+body.dark-theme.page-reports .badge-low{    background: rgba(245,158,11,.18) !important; color:#fde68a !important; border-color: rgba(245,158,11,.25) !important; }
+body.dark-theme.page-reports .badge-out{    background: rgba(244,63,94,.20)  !important; color:#fecdd3 !important; border-color: rgba(244,63,94,.28) !important; }
+
+/* =========================================================
+   REPORTS PAGE ONLY (FINAL)
+   - Only affects reports.html (body.page-reports)
+   - Sidebar fixed, right content scrolls
+   - Nice colors + dark mode
+   - Report Type radio forced TOP-RIGHT
+========================================================= */
+
+/* ---------- Theme detect (you use <html data-theme="...">) ---------- */
+body.page-reports{
+  --rp-bg: #f5f7fb;
+  --rp-card: rgba(255,255,255,0.78);
+  --rp-border: rgba(15,23,42,0.10);
+  --rp-text: #0f172a;
+  --rp-muted: rgba(15,23,42,0.65);
+  --rp-shadow: 0 10px 30px rgba(15,23,42,0.10);
+  --rp-radius: 16px;
+
+  --rp-blue1:#60a5fa; --rp-blue2:#2563eb;
+  --rp-red1:#fca5a5;  --rp-red2:#b91c1c;
+  --rp-green1:#5eead4;--rp-green2:#0f766e;
+  --rp-purple1:#a78bfa;--rp-purple2:#7c3aed;
+}
+
+/* dark mode: support html[data-theme="dark"] AND body.dark-theme */
+html[data-theme="dark"] body.page-reports,
+body.dark-theme.page-reports{
+  --rp-bg: #0b1220;
+  --rp-card: rgba(255,255,255,0.06);
+  --rp-border: rgba(255,255,255,0.14);
+  --rp-text: rgba(255,255,255,0.92);
+  --rp-muted: rgba(255,255,255,0.65);
+  --rp-shadow: 0 14px 40px rgba(0,0,0,0.35);
+}
+
+/* =========================================================
+   REPORTS FINAL (NO DUPLICATES) ✅
+   Scope: body.page-reports only
+   - Sidebar fixed
+   - Right side scrolls (#reportsContent)
+   - Reports fills the remaining screen width
+   - Fullscreen Generate modal covers sidebar too
+   - Colored bars + dark mode support
+========================================================= */
+
+/* ---------- Layout (Reports only) ---------- */
+body.page-reports{
+  background: var(--rp-bg);
+  height: 100vh;
+  overflow: hidden; /* lock page scroll, only #reportsContent scrolls */
+}
+
+body.page-reports .dashboard-container{
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh;
+}
+
+/* Sidebar fixed */
+body.page-reports .dashboard-container > .sidebar{
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 280px;              /* MUST match your real sidebar width */
+  overflow: hidden;
+  z-index: 50;
+}
+
+/* Right content fills remaining viewport width */
+body.page-reports .dashboard-container > #reportsContent{
+  position: relative;
+  margin-left: 280px;                 /* MUST match sidebar width */
+  width: calc(100vw - 280px);         /* ✅ KEY: fill remaining width */
+  max-width: none !important;
+
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  padding: 32px 40px 56px;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+}
+
+/* remove any centering caps (if old rules existed) */
+body.page-reports #reportsContent > .content-header,
+body.page-reports #reportsContent > .reports-range,
+body.page-reports #reportsContent > .reports-kpi,
+body.page-reports #reportsContent > .reports-grid{
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Mobile */
+@media (max-width: 900px){
+  body.page-reports{
+    height: auto;
+    overflow: auto;
+  }
+
+  body.page-reports .dashboard-container{
+    width: 100% !important;
+    height: auto;
+  }
+
+  body.page-reports .dashboard-container > .sidebar{
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  body.page-reports .dashboard-container > #reportsContent{
+    margin-left: 0;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    padding: 24px;
+  }
+}
+
+/* ---------- Reports UI (nice + colored) ---------- */
+body.page-reports .reports-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom: 14px;
+  color: var(--rp-text);
+}
+body.page-reports .reports-header h1{
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+}
+body.page-reports .reports-header p{
+  margin: 6px 0 0;
+  max-width: 560px;
+  color: var(--rp-muted);
+}
+
+/* generate button not full width */
+body.page-reports .reports-header .pill-btn{
+  border-radius: 999px !important;
+  padding: 10px 16px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+/* Range chips */
+body.page-reports .reports-range{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+body.page-reports .range-chip{
+  border:none;
+  cursor:pointer;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--rp-text);
+  background: rgba(15,23,42,0.06);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+body.page-reports .range-chip:hover{ transform: translateY(-1px); }
+body.page-reports .range-chip.active{
+  background: #0b1220;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(15,23,42,0.18);
+}
+html[data-theme="dark"] body.page-reports .range-chip,
+body.dark-theme.page-reports .range-chip{
+  background: rgba(255,255,255,0.08);
+  color: var(--rp-text);
+}
+html[data-theme="dark"] body.page-reports .range-chip.active,
+body.dark-theme.page-reports .range-chip.active{
+  background: rgba(255,255,255,0.92);
+  color: #0b1220;
+}
+
+/* KPI grid */
+
+body.page-reports .reports-kpi{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+body.page-reports .kpi-card{
+  background: var(--rp-card);
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius);
+  padding: 14px;
+  box-shadow: var(--rp-shadow);
+  color: var(--rp-text);
+}
+body.page-reports .kpi-title{ font-size: 12px; font-weight: 700; color: var(--rp-muted); }
+body.page-reports .kpi-value{ font-size: 22px; font-weight: 900; margin-top: 6px; }
+body.page-reports .kpi-sub{ font-size: 12px; color: var(--rp-muted); margin-top: 6px; }
+body.page-reports .kpi-import .kpi-value{ color: var(--rp-blue2); }
+body.page-reports .kpi-export .kpi-value{ color: var(--rp-red2); }
+body.page-reports .kpi-net .kpi-value{ color: var(--rp-green2); }
+
+/* Main cards grid */
+body.page-reports .reports-grid{
+  margin-top: 14px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+body.page-reports .report-card{
+  background: var(--rp-card);
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius);
+  padding: 14px;
+  box-shadow: var(--rp-shadow);
+  color: var(--rp-text);
+}
+body.page-reports .report-card-header h3{ font-size:16px; margin:0 0 4px; }
+body.page-reports .report-card-header p{ font-size:12px; margin:0; color: var(--rp-muted); }
+body.page-reports .muted{ color: var(--rp-muted) !important; font-size: 12px; }
+body.page-reports .mini-note{ margin-top:10px; font-size:12px; color: var(--rp-muted); }
+
+/* Bars */
+body.page-reports .bar-track,
+body.page-reports .cat-track{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.10);
+  overflow: hidden;
+}
+html[data-theme="dark"] body.page-reports .bar-track,
+html[data-theme="dark"] body.page-reports .cat-track,
+body.dark-theme.page-reports .bar-track,
+body.dark-theme.page-reports .cat-track{
+  background: rgba(255,255,255,0.12);
+}
+body.page-reports .bar-fill.import{ background: linear-gradient(90deg, var(--rp-blue1), var(--rp-blue2)); }
+body.page-reports .bar-fill.export{ background: linear-gradient(90deg, var(--rp-red1), var(--rp-red2)); }
+body.page-reports .bar-fill.net{ background: linear-gradient(90deg, var(--rp-green1), var(--rp-green2)); }
+body.page-reports .cat-fill{ background: linear-gradient(90deg, var(--rp-purple1), var(--rp-purple2)); }
+
+/* Responsive */
+@media (max-width: 980px){
+  body.page-reports .reports-kpi{ grid-template-columns: 1fr 1fr; }
+  body.page-reports .reports-grid{ grid-template-columns: 1fr; }
+}
+
+/* ---------- Generate Modal: fullscreen overlay + radio top-right ---------- */
+body.page-reports #generateReportModal{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(2, 6, 23, 0.55) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* compatible with different open classes */
+body.page-reports #generateReportModal.show,
+body.page-reports #generateReportModal.active,
+body.page-reports #generateReportModal[style*="display: block"],
+body.page-reports #generateReportModal[style*="display:block"]{
+  display: flex !important;
+}
+
+/* modal content */
+body.page-reports #generateReportModal .modal-content{
+  width: min(720px, calc(100vw - 32px)) !important;
+  max-height: calc(100vh - 32px) !important;
+  overflow: auto !important;
+  border-radius: 18px;
+}
+
+/* radio grid */
+body.page-reports #generateReportModal .report-type-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+@media (max-width: 980px){
+  body.page-reports #generateReportModal .report-type-grid{ grid-template-columns: 1fr; }
+}
+
+body.page-reports #generateReportModal .report-type{
+  position: relative !important;
+  display: block !important;
+  padding: 14px 56px 14px 14px !important;
+  border-radius: 16px;
+  background: rgba(15,23,42,0.04);
+  border: 1px solid rgba(15,23,42,0.10);
+}
+html[data-theme="dark"] body.page-reports #generateReportModal .report-type,
+body.dark-theme.page-reports #generateReportModal .report-type{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.18);
+}
+
+body.page-reports #generateReportModal .report-type > input[type="radio"]{
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  margin: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+  transform: none !important;
+  accent-color: #3b82f6;
+}
+
+body.page-reports #generateReportModal .report-type:has(input[type="radio"]:checked){
+  border-color: rgba(59,130,246,0.45);
+  background: rgba(59,130,246,0.08);
+}
+html[data-theme="dark"] body.page-reports #generateReportModal .report-type:has(input[type="radio"]:checked),
+body.dark-theme.page-reports #generateReportModal .report-type:has(input[type="radio"]:checked){
+  background: rgba(59,130,246,0.14);
+  border-color: rgba(147,197,253,0.55);
+}
+
+/* modal actions */
+body.page-reports #generateReportModal .modal-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+}
+body.page-reports #generateReportModal .modal-actions button{
+  width: auto !important;
+  margin: 0 !important;
+}
+body.page-reports #generateReportModal .modal-actions .btn-secondary{ min-width: 180px; }
+body.page-reports #generateReportModal .modal-actions .btn-primary{ min-width: 220px; }
+
+/* =========================================================
+   REPORTS COLOR UPGRADE (Reports only) ✅
+========================================================= */
+
+/* Tracks slightly clearer */
+body.page-reports .bar-track,
+body.page-reports .cat-track{
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+html[data-theme="light"] body.page-reports .bar-track,
+html[data-theme="light"] body.page-reports .cat-track{
+  background: rgba(15,23,42,0.08);
+  border: 1px solid rgba(15,23,42,0.06);
+}
+
+/* ---- Stock Movement bar colors (force by row order) ---- */
+body.page-reports .mini-bars .bar-row:nth-child(1) .bar-fill,
+body.page-reports .mini-bars .bar-row:nth-child(1) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #60a5fa, #2563eb) !important; /* Import */
+}
+body.page-reports .mini-bars .bar-row:nth-child(2) .bar-fill,
+body.page-reports .mini-bars .bar-row:nth-child(2) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #fca5a5, #b91c1c) !important; /* Export */
+}
+body.page-reports .mini-bars .bar-row:nth-child(3) .bar-fill,
+body.page-reports .mini-bars .bar-row:nth-child(3) .bar-track > *:first-child{
+  background: linear-gradient(90deg, #5eead4, #0f766e) !important; /* Net */
+}
+
+/* ---- Category bar color ---- */
+body.page-reports .cat-fill,
+body.page-reports .cat-track > *:first-child{
+  background: linear-gradient(90deg, #a78bfa, #7c3aed) !important;
+}
+
+/* ---- Category % numbers (right side) ---- */
+body.page-reports .category-list .cat-row > :last-child{
+  font-weight: 900;
+}
+body.page-reports .category-list .cat-row:nth-child(1) > :last-child{ color:#a78bfa; }
+body.page-reports .category-list .cat-row:nth-child(2) > :last-child{ color:#60a5fa; }
+body.page-reports .category-list .cat-row:nth-child(3) > :last-child{ color:#5eead4; }
+
+/* ---- Badges (Import/Export/Low/Out) ---- */
+body.page-reports .badge,
+body.page-reports .badge-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  letter-spacing: .2px;
+  border: 1px solid transparent;
+}
+
+/* Light mode */
+html[data-theme="light"] body.page-reports .badge-import{ background: rgba(37,99,235,.12); color:#1d4ed8; border-color: rgba(37,99,235,.18); }
+html[data-theme="light"] body.page-reports .badge-export{ background: rgba(185,28,28,.12); color:#b91c1c; border-color: rgba(185,28,28,.18); }
+html[data-theme="light"] body.page-reports .badge-low{    background: rgba(245,158,11,.14); color:#92400e; border-color: rgba(245,158,11,.20); }
+html[data-theme="light"] body.page-reports .badge-out{    background: rgba(239,68,68,.12); color:#991b1b; border-color: rgba(239,68,68,.18); }
+
+/* Dark mode (more “premium” but readable) */
+html[data-theme="dark"] body.page-reports .badge-import{ background: rgba(59,130,246,.18); color:#bfdbfe; border-color: rgba(59,130,246,.25); }
+html[data-theme="dark"] body.page-reports .badge-export{ background: rgba(239,68,68,.18); color:#fecaca; border-color: rgba(239,68,68,.25); }
+html[data-theme="dark"] body.page-reports .badge-low{    background: rgba(245,158,11,.18); color:#fde68a; border-color: rgba(245,158,11,.25); }
+html[data-theme="dark"] body.page-reports .badge-out{    background: rgba(244,63,94,.20);  color:#fecdd3; border-color: rgba(244,63,94,.28); }
+
+/* =========================================================
+   KPI number color fallback (Reports only) ✅ no HTML changes
+   Order: 1 Total, 2 Stock In, 3 Stock Out, 4 Net Change
+========================================================= */
+
+/* Light */
+html[data-theme="light"] body.page-reports .reports-kpi .kpi-card:nth-child(2) .kpi-value{ color:#2563eb !important; }
+html[data-theme="light"] body.page-reports .reports-kpi .kpi-card:nth-child(3) .kpi-value{ color:#b91c1c !important; }
+html[data-theme="light"] body.page-reports .reports-kpi .kpi-card:nth-child(4) .kpi-value{ color:#0f766e !important; }
+
+/* Dark */
+html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(2) .kpi-value{ color:#60a5fa !important; }
+html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(3) .kpi-value{ color:#fca5a5 !important; }
+html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(4) .kpi-value{ color:#5eead4 !important; }
+
+/* =========================================================
+   REPORTS PATCH (put at VERY BOTTOM)
+   Fix:
+   1) Stock Movement + Category fill bars not showing
+   2) Low Stock Alert item boxes missing
+   Works with body.dark-theme + body.page-reports
+========================================================= */
+
+/* ---------- 1) Force tracks to be normal block containers ---------- */
+body.page-reports .bar-track,
+body.page-reports .cat-track{
+  position: relative !important;
+  display: block !important;
+  height: 10px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+
+/* ✅ The key: force the first child inside track to be the fill bar */
+body.page-reports .bar-track > *:first-child,
+body.page-reports .cat-track > *:first-child{
+  display: block !important;
+  height: 100% !important;
+  border-radius: 999px !important;
+  min-width: 0 !important;
+}
+
+/* If your HTML uses .bar-fill / .cat-fill, also enforce */
+body.page-reports .bar-fill,
+body.page-reports .cat-fill{
+  display: block !important;
+  height: 100% !important;
+  border-radius: 999px !important;
+}
+
+/* ---------- 1A) Colors (dark-theme version) ---------- */
+/* Stock Movement: 1=Import, 2=Export, 3=Net */
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-track > *:first-child,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-fill{
+  background: linear-gradient(90deg, #60a5fa, #2563eb) !important;
+}
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(2) .bar-track > *:first-child,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(2) .bar-fill{
+  background: linear-gradient(90deg, #fca5a5, #b91c1c) !important;
+}
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(3) .bar-track > *:first-child,
+body.dark-theme.page-reports .mini-bars .bar-row:nth-child(3) .bar-fill{
+  background: linear-gradient(90deg, #5eead4, #0f766e) !important;
+}
+
+/* Category bar fill */
+body.dark-theme.page-reports .cat-track > *:first-child,
+body.dark-theme.page-reports .cat-fill{
+  background: linear-gradient(90deg, #a78bfa, #7c3aed) !important;
+}
+
+/* ---------- 1B) If your fill exists but width becomes 0 due to CSS, stop flex shrink ---------- */
+body.page-reports .bar-track > *:first-child,
+body.page-reports .cat-track > *:first-child,
+body.page-reports .bar-fill,
+body.page-reports .cat-fill{
+  flex: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* ---------- 2) Restore Low Stock Alert item boxes ---------- */
+/* Try to match multiple possible wrappers without changing HTML */
+body.page-reports .lowstock-item,
+body.page-reports .low-stock-item,
+body.page-reports .lowstock-list > *{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+
+  background: rgba(255,255,255,0.06) !important;          /* dark-friendly */
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+/* Low stock list spacing (if container exists) */
+body.page-reports .lowstock-list,
+body.page-reports .low-stock-list{
+  display: grid !important;
+  gap: 12px !important;
+}
+
+/* Badge position inside Low Stock: keep badge on the right */
+body.page-reports .lowstock-item .badge,
+body.page-reports .low-stock-item .badge{
+  margin-left: auto !important;
+}
+
+/* ---------- 3) Category % color (in case your HTML doesn't use .category-list) ---------- */
+/* fallback: inside Inventory by Category card, any row last column */
+body.dark-theme.page-reports .report-card .cat-row > :last-child{
+  font-weight: 900 !important;
+}
+
+/* =========================================================
+   INVENTORY: Top Actions Buttons Fix (Add / Import / Export)
+   Scope: inventory page only (uses #inventoryContent)
+   Put this at the VERY BOTTOM of styles.css
+========================================================= */
+
+/* 1) Topbar layout: search left, buttons right */
+#inventoryContent .inventory-topbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap; /* 小屏自动换行 */
+}
+
+/* 2) Buttons container */
+#inventoryContent .top-actions{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  min-width: fit-content;
+}
+
+/* ✅ 强制按钮不会被“全局 CSS”隐藏 */
+#inventoryContent .top-actions button,
+#inventoryContent .top-actions .btn,
+#inventoryContent .top-actions .action-btn{
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  width: auto !important;
+  margin: 0 !important;
+
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* 3) Make Import/Export match Add New shape */
+#inventoryContent .top-actions .action-btn{
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+#inventoryContent .top-actions .action-btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+#inventoryContent .top-actions .action-btn:active{
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ---------- Light mode ---------- */
+html[data-theme="light"] #inventoryContent .top-actions .btn-import{
+  background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  color: #3730a3 !important;
+}
+html[data-theme="light"] #inventoryContent .top-actions .btn-export{
+  background: linear-gradient(180deg, #ffffff 0%, #ecfeff 100%) !important;
+  border-color: rgba(14, 116, 144, 0.25) !important;
+  color: #155e75 !important;
+}
+
+/* ---------- Dark mode ---------- */
+html[data-theme="dark"] #inventoryContent .top-actions .btn-import{
+  background: linear-gradient(180deg, rgba(99,102,241,0.22), rgba(99,102,241,0.10)) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  color: rgba(255,255,255,0.92) !important;
+}
+html[data-theme="dark"] #inventoryContent .top-actions .btn-export{
+  background: linear-gradient(180deg, rgba(6,182,212,0.22), rgba(6,182,212,0.10)) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  color: rgba(255,255,255,0.92) !important;
+}
+
+/* focus ring */
+#inventoryContent .top-actions .action-btn:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.25), 0 6px 16px rgba(15, 23, 42, 0.14);
+}
+

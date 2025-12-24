@@ -17,7 +17,7 @@
   <title>Inventory Pro - Reports</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
+<body class="page-reports">
   <div class="dashboard-container">
     <!-- Sidebar -->
     <div class="sidebar">
@@ -80,24 +80,180 @@
     </div>
 
     <!-- Main -->
-    <div class="main-content">
-      <div id="reportsContent" class="content-page active">
-        <div class="content-header">
-          <h1>Reports</h1>
-          <p>View your business analytics and reports</p>
+    <div id="reportsContent" class="content-page active">
+      <div class="content-header reports-header">
+        <div>
+          <h1>Report & Analytics</h1>
+          <p>Track stock movement (import/export) and generate printable reports.</p>
         </div>
 
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          <h3>No Reports Available</h3>
-          <p>Reports will be generated based on your data</p>
+        <button class="btn-primary pill-btn" type="button" id="openGenerateReportBtn">
+          ⬇ Generate Report
+        </button>
+      </div>
+
+      <!-- Range Tabs -->
+      <div class="reports-range">
+        <button class="range-chip active" data-range="today">Today</button>
+        <button class="range-chip" data-range="week">This Week</button>
+        <button class="range-chip" data-range="month">This Month</button>
+        <button class="range-chip" data-range="year">This Year</button>
+        <button class="range-chip" data-range="custom">Custom</button>
+
+        <div class="range-custom" id="customRangeBox" style="display:none;">
+          <input type="date" id="rangeStart" />
+          <span>—</span>
+          <input type="date" id="rangeEnd" />
+          <button class="btn-secondary pill-btn" type="button" id="applyCustomRangeBtn">Apply</button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="reports-kpi">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Products</div>
+          <div class="kpi-value" id="kpiTotalProducts">0</div>
+          <div class="kpi-sub" id="kpiTotalProductsSub">All SKUs</div>
+        </div>
+
+        <div class="kpi-card kpi-import">
+          <div class="kpi-title">Stock In (Import)</div>
+          <div class="kpi-value" id="kpiImportUnits">0</div>
+          <div class="kpi-sub" id="kpiImportValue">RM 0.00</div>
+        </div>
+
+        <div class="kpi-card kpi-export">
+          <div class="kpi-title">Stock Out (Export)</div>
+          <div class="kpi-value" id="kpiExportUnits">0</div>
+          <div class="kpi-sub" id="kpiExportValue">RM 0.00</div>
+        </div>
+
+        <div class="kpi-card kpi-net">
+          <div class="kpi-title">Net Change</div>
+          <div class="kpi-value" id="kpiNetUnits">0</div>
+          <div class="kpi-sub" id="kpiNetValue">RM 0.00</div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="reports-grid">
+        <!-- Left: Movement -->
+        <div class="report-card">
+          <div class="report-card-header">
+            <h3>Stock Movement</h3>
+            <p>Import vs Export (selected range)</p>
+          </div>
+
+          <div class="mini-bars" id="movementBars">
+            <!-- JS inject -->
+          </div>
+
+          <div class="mini-note" id="movementNote">—</div>
+        </div>
+
+        <!-- Right: Category -->
+        <div class="report-card">
+          <div class="report-card-header">
+            <h3>Inventory by Category</h3>
+            <p>Share by total value</p>
+          </div>
+
+          <div class="category-list" id="categoryList">
+            <!-- JS inject -->
+          </div>
+        </div>
+
+        <!-- Left: Recent activity -->
+        <div class="report-card">
+          <div class="report-card-header">
+            <h3>Recent Activity</h3>
+            <p>Latest import/export actions</p>
+          </div>
+
+          <div class="activity-list" id="activityList">
+            <!-- JS inject -->
+          </div>
+        </div>
+
+        <!-- Right: Low stock -->
+        <div class="report-card">
+          <div class="report-card-header">
+            <h3>Low Stock Alert</h3>
+            <p>Items below threshold</p>
+          </div>
+
+          <div class="lowstock-list" id="lowStockList">
+            <!-- JS inject -->
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- Generate Report Modal -->
+    <div id="generateReportModal" class="modal">
+      <div class="modal-content modal-md">
+        <div class="modal-header">
+          <h3>Generate Report</h3>
+          <button class="modal-close" id="closeGenerateReportModal">&times;</button>
+        </div>
+
+        <form id="generateReportForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Report Type</label>
+              <div class="report-type-grid">
+                <label class="report-type">
+                  <input type="radio" name="reportType" value="full" checked />
+                  <div>
+                    <b>Full Inventory</b>
+                    <div class="muted">All products + summary</div>
+                  </div>
+                </label>
+
+                <label class="report-type">
+                  <input type="radio" name="reportType" value="low_stock" />
+                  <div>
+                    <b>Low Stock</b>
+                    <div class="muted">Items below threshold</div>
+                  </div>
+                </label>
+
+                <label class="report-type">
+                  <input type="radio" name="reportType" value="movement" />
+                  <div>
+                    <b>Stock Movement</b>
+                    <div class="muted">Import & export totals</div>
+                  </div>
+                </label>
+
+                <label class="report-type">
+                  <input type="radio" name="reportType" value="valuation" />
+                  <div>
+                    <b>Inventory Valuation</b>
+                    <div class="muted">Value by category</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Range</label>
+              <div class="range-inline" id="reportRangeLabel">Today</div>
+              <div class="muted">This follows the range you selected on the page.</div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="cancelGenerateReportBtn">Cancel</button>
+            <button type="submit" class="btn-primary">Download PDF</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Hidden PDF container -->
+    <div id="pdfRoot" class="pdf-root" style="display:none;"></div>
+
 
   <!-- Logout Confirmation Modal -->
   <div id="logoutModal" class="modal">
@@ -122,5 +278,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./assets/js/reports.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </body>
 </html>
