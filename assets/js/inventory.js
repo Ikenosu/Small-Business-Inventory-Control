@@ -199,49 +199,6 @@ export function wireInventoryUI() {
     }, 250);
   });
 
-  function wireInventorySearch() {
-  const input = document.getElementById('inventorySearch');
-  if (!input) return;
-
-  const debounce = (fn, delay = 120) => {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), delay);
-    };
-  };
-
-  const applySearch = () => {
-    const q = (input.value || '').trim().toLowerCase();
-
-    if (!q) {
-      inventoryFilteredCache = [...inventoryProductsCache];
-      renderInventoryGrid(inventoryProductsCache);
-      return;
-    }
-
-    const filtered = inventoryProductsCache.filter(p => {
-      const name = String(p.name || '').toLowerCase();
-      const sku = String(p.sku || '').toLowerCase();
-      const category = String(p.category || '').toLowerCase();
-      return name.includes(q) || sku.includes(q) || category.includes(q);
-    });
-
-    inventoryFilteredCache = filtered;
-    renderInventoryGrid(filtered);
-  };
-
-  input.addEventListener('input', debounce(applySearch, 120));
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      input.value = '';
-      inventoryFilteredCache = [...inventoryProductsCache];
-      renderInventoryGrid(inventoryProductsCache);
-    }
-  });
-}
-
   // ===== Add Product Modal wiring =====
   const addModal = document.getElementById('addProductModal');
 
@@ -436,6 +393,49 @@ export function wireInventoryUI() {
     renderInventoryGrid(inventoryProductsCache);
 
     closeProductDetailsModal();
+  });
+}
+
+function wireInventorySearch() {
+const input = document.getElementById('inventorySearch');
+if (!input) return;
+
+  const debounce = (fn, delay = 120) => {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), delay);
+    };
+  };
+
+  const applySearch = () => {
+    const q = (input.value || '').trim().toLowerCase();
+
+    if (!q) {
+      inventoryFilteredCache = [...inventoryProductsCache];
+      renderInventoryGrid(inventoryProductsCache);
+      return;
+    }
+
+    const filtered = inventoryProductsCache.filter(p => {
+      const name = String(p.name || '').toLowerCase();
+      const sku = String(p.sku || '').toLowerCase();
+      const category = String(p.category || '').toLowerCase();
+      return name.includes(q) || sku.includes(q) || category.includes(q);
+    });
+
+    inventoryFilteredCache = filtered;
+    renderInventoryGrid(filtered);
+  };
+
+  input.addEventListener('input', debounce(applySearch, 120));
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      inventoryFilteredCache = [...inventoryProductsCache];
+      renderInventoryGrid(inventoryProductsCache);
+    }
   });
 }
 
