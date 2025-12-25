@@ -552,6 +552,7 @@ async function loadAccountStats(userId) {
     const { data: products, error } = await supabase
       .from('products')
       .select('quantity,price')
+      .eq('is_active', true)
       .eq('user_id', userId);
 
     if (error) throw error;
