@@ -583,7 +583,21 @@ async function loadAccountStats(userId) {
 
   // 3) UI
   setText('accountStatProducts', String(productsCount));
-  setText('accountStatReports', '0');
+  let reportsCount = 0;
+  try {
+    reportsCount = Number(localStorage.getItem(`inventorypro.reports_count.${userId}`) || 0);
+  } catch {}
+  setText('accountStatReports', String(reportsCount));
+  
+
+  // Fallback: localStorage counter (works without any DB table)
+  if (!reportsCount) {
+    try {
+      reportsCount = Number(localStorage.getItem(`inventorypro.reports_count.${userId}`) || 0);
+    } catch {}
+  }
+
+  setText('accountStatReports', String(reportsCount));
 
   if (typeof formatRM === 'function') {
     setText('accountStatValue', formatRM(totalValue));

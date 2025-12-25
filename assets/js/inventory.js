@@ -999,8 +999,9 @@ expQty?.addEventListener('input', recalcExportTotal);
 }
 
 function wireInventorySearch() {
-const input = document.getElementById('inventorySearch');
-if (!input) return;
+  const input = document.getElementById('inventorySearch');
+  const sortSelect = document.getElementById('inventorySortCategory');
+  if (!input) return;
 
   const debounce = (fn, delay = 120) => {
     let t;
@@ -1010,16 +1011,25 @@ if (!input) return;
     };
   };
 
-  const applySearch = () => {
-    const q = (input.value || '').trim().toLowerCase();
+  const normalizeCat = (v) => String(v || '').trim().toLowerCase();
 
-    if (!q) {
-      inventoryFilteredCache = [...inventoryProductsCache];
-      renderInventoryGrid(inventoryProductsCache);
-      return;
-    }
+  const applyFilters = () => {
+    const q = (input.value || '').trim().toLowerCase();
+    const selected = sortSelect ? sortSelect.value : 'ALL'; // ALL / Electronics / Office / Furniture / Other
 
     const filtered = inventoryProductsCache.filter(p => {
+      // Category filter
+      if (selected !== 'ALL') {
+        const pc = normalizeCat(p.category);
+        const want = normalizeCat(selected);
+
+        // match exact category values (Office is stored as "Office" in your options)
+        if (pc !== want) return false;
+      }
+
+      // Search filter
+      if (!q) return true;
+
       const name = String(p.name || '').toLowerCase();
       const sku = String(p.sku || '').toLowerCase();
       const category = String(p.category || '').toLowerCase();
@@ -1030,15 +1040,22 @@ if (!input) return;
     renderInventoryGrid(filtered);
   };
 
-  input.addEventListener('input', debounce(applySearch, 120));
+  // Search typing
+  input.addEventListener('input', debounce(applyFilters, 120));
 
+  // Category dropdown change
+  sortSelect?.addEventListener('change', applyFilters);
+
+  // Escape clears only the search text (keeps selected category)
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       input.value = '';
-      inventoryFilteredCache = [...inventoryProductsCache];
-      renderInventoryGrid(inventoryProductsCache);
+      applyFilters();
     }
   });
+
+  // Run once on page load so dropdown default applies immediately
+  applyFilters();
 }
 
 /* =========================

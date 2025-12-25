@@ -1824,6 +1824,44 @@ input:checked + .toggle-slider:before {
     font-size: 14px;
 }
 
+.sort-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#e5e7eb;
+  padding:10px 12px;
+  border-radius:10px;
+  white-space:nowrap;
+}
+
+.sort-label{
+  font-size:13px;
+  font-weight:600;
+  color:#6b7280;
+}
+
+.sort-select{
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size:14px;
+  color:#111827;
+  cursor:pointer;
+}
+
+body.dark-theme .sort-box{
+  background:#0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark-theme .sort-label{
+  color:#94a3b8;
+}
+
+body.dark-theme .sort-select{
+  color:#f1f5f9;
+}
+
 .filter-btn {
     background: white;
     border: 1px solid #ddd;
@@ -2112,6 +2150,7 @@ input:checked + .toggle-slider:before {
   margin-bottom: 18px;
 }
 
+
 .search-box {
   flex: 1;
   display: flex;
@@ -2174,6 +2213,26 @@ input:checked + .toggle-slider:before {
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: 22px;
+}
+
+#inventoryContent .product-card,
+.product-card{
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#inventoryContent .product-card:hover,
+.product-card:hover{
+  background-color: #f8fafc;                 /* slight color change */
+  transform: translateY(-2px);              /* subtle lift */
+  box-shadow: 0 14px 28px rgba(15,23,42,0.10);
+}
+
+/* Dark mode hover (you use body.dark-theme) */
+body.dark-theme #inventoryContent .product-card:hover,
+body.dark-theme .product-card:hover{
+  background-color: #111827 !important;     /* you already use this hover color */
+  box-shadow: 0 14px 28px rgba(0,0,0,0.35) !important;
 }
 
 /* Product card styling like screenshot */

@@ -473,7 +473,14 @@ function wireGenerateReportUI() {
     pdfRoot.style.display = 'block';
     await window.html2pdf().set(opt).from(pdfRoot).save();
     pdfRoot.style.display = 'none';
-  });
+
+    // ✅ Track generated report count per user (localStorage)
+    try {
+      const key = `inventorypro.reports_count.${currentUserId}`;
+      const next = Number(localStorage.getItem(key) || 0) + 1;
+      localStorage.setItem(key, String(next));
+    } catch {}
+      });
 }
 
 function buildPdfHtml(type, products, imports, exports, range) {
