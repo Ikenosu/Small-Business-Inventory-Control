@@ -2238,6 +2238,45 @@ input:checked + .toggle-slider:before {
   .top-actions { justify-content: flex-end; }
 }
 
+.sort-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#e5e7eb;
+  padding:10px 12px;
+  border-radius:10px;
+  white-space:nowrap;
+}
+
+.sort-label{
+  font-size:13px;
+  font-weight:600;
+  color:#6b7280;
+}
+
+.sort-select{
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size:14px;
+  color:#111827;
+  cursor:pointer;
+}
+
+/* Dark mode support (your CSS uses body.dark-theme) */
+body.dark-theme .sort-box{
+  background:#0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark-theme .sort-label{
+  color:#94a3b8;
+}
+
+body.dark-theme .sort-select{
+  color:#f1f5f9;
+}
+
 #inventoryContent .inventory-topbar{
   display:flex;
   align-items:center;
@@ -3246,3 +3285,22 @@ html[data-theme="dark"] #inventoryContent .top-actions .btn-export{
   box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.25), 0 6px 16px rgba(15, 23, 42, 0.14);
 }
 
+#inventoryContent .product-card,
+.product-card{
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#inventoryContent .product-card:hover,
+.product-card:hover{
+  background-color: #f8fafc;                 /* slight color change */
+  transform: translateY(-2px);              /* subtle lift */
+  box-shadow: 0 14px 28px rgba(15,23,42,0.10);
+}
+
+/* Dark mode hover (you use body.dark-theme) */
+body.dark-theme #inventoryContent .product-card:hover,
+body.dark-theme .product-card:hover{
+  background-color: #111827 !important;     /* you already use this hover color */
+  box-shadow: 0 14px 28px rgba(0,0,0,0.35) !important;
+}
