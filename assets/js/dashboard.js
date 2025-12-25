@@ -137,6 +137,7 @@ export async function updateDashboardStats(userId, settings = dashboardSettings)
     const { data: products, error } = await supabase
       .from('products')
       .select('*')
+      .eq('is_active', true)
       .eq('user_id', userId);
 
     if (error) throw error;

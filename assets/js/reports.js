@@ -102,6 +102,7 @@ async function loadProducts(userId) {
     .from('products')
     .select('id,name,sku,category,quantity,price,low_stock_threshold,created_at,user_id')
     .eq('user_id', userId)
+    .eq('is_active', true)
     .order('created_at', { ascending: false });
 
   if (error) {
