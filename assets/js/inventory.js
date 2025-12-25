@@ -122,6 +122,7 @@ async function loadInventory(userId) {
     .from('products')
     .select('*')
     .eq('user_id', userId)
+    .eq('is_active', true)
     .order('created_at', { ascending: false });
 
   if (prodErr) {
@@ -403,7 +404,7 @@ export function wireInventoryUI() {
 
     const { error } = await supabase
       .from('products')
-      .delete()
+      .update({ is_active: false ,quantity: 0})
       .eq('id', selectedProductId)
       .eq('user_id', currentUserId);
 
@@ -977,7 +978,7 @@ expQty?.addEventListener('input', recalcExportTotal);
 
         const { error: updErr } = await supabase
           .from('products')
-          .update({ quantity: newQty })
+          .update({ quantity: newQty, is_active: true })
           .eq('id', impSelectedProduct.id)
           .eq('user_id', currentUserId);
 

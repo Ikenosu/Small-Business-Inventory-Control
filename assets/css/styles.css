@@ -1824,44 +1824,6 @@ input:checked + .toggle-slider:before {
     font-size: 14px;
 }
 
-.sort-box{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:#e5e7eb;
-  padding:10px 12px;
-  border-radius:10px;
-  white-space:nowrap;
-}
-
-.sort-label{
-  font-size:13px;
-  font-weight:600;
-  color:#6b7280;
-}
-
-.sort-select{
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:14px;
-  color:#111827;
-  cursor:pointer;
-}
-
-body.dark-theme .sort-box{
-  background:#0f172a !important;
-  border: 1px solid #334155 !important;
-}
-
-body.dark-theme .sort-label{
-  color:#94a3b8;
-}
-
-body.dark-theme .sort-select{
-  color:#f1f5f9;
-}
-
 .filter-btn {
     background: white;
     border: 1px solid #ddd;
@@ -2150,7 +2112,6 @@ body.dark-theme .sort-select{
   margin-bottom: 18px;
 }
 
-
 .search-box {
   flex: 1;
   display: flex;
@@ -2213,26 +2174,6 @@ body.dark-theme .sort-select{
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: 22px;
-}
-
-#inventoryContent .product-card,
-.product-card{
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-#inventoryContent .product-card:hover,
-.product-card:hover{
-  background-color: #f8fafc;                 /* slight color change */
-  transform: translateY(-2px);              /* subtle lift */
-  box-shadow: 0 14px 28px rgba(15,23,42,0.10);
-}
-
-/* Dark mode hover (you use body.dark-theme) */
-body.dark-theme #inventoryContent .product-card:hover,
-body.dark-theme .product-card:hover{
-  background-color: #111827 !important;     /* you already use this hover color */
-  box-shadow: 0 14px 28px rgba(0,0,0,0.35) !important;
 }
 
 /* Product card styling like screenshot */
@@ -2692,11 +2633,9 @@ body.dark-theme .product-card:hover{
     color: #065f46;
 }
 /* =========================================================
-   REPORTS: dark theme compatibility (YOU USE body.dark-theme)
-   Put this at the VERY BOTTOM of your CSS
+   REPORTS
 ========================================================= */
 
-/* Tracks in dark */
 body.dark-theme.page-reports .bar-track,
 body.dark-theme.page-reports .cat-track{
   background: rgba(255,255,255,0.12) !important;
@@ -2741,15 +2680,6 @@ body.dark-theme.page-reports .badge-export{ background: rgba(239,68,68,.18) !imp
 body.dark-theme.page-reports .badge-low{    background: rgba(245,158,11,.18) !important; color:#fde68a !important; border-color: rgba(245,158,11,.25) !important; }
 body.dark-theme.page-reports .badge-out{    background: rgba(244,63,94,.20)  !important; color:#fecdd3 !important; border-color: rgba(244,63,94,.28) !important; }
 
-/* =========================================================
-   REPORTS PAGE ONLY (FINAL)
-   - Only affects reports.html (body.page-reports)
-   - Sidebar fixed, right content scrolls
-   - Nice colors + dark mode
-   - Report Type radio forced TOP-RIGHT
-========================================================= */
-
-/* ---------- Theme detect (you use <html data-theme="...">) ---------- */
 body.page-reports{
   --rp-bg: #f5f7fb;
   --rp-card: rgba(255,255,255,0.78);
@@ -2765,7 +2695,6 @@ body.page-reports{
   --rp-purple1:#a78bfa;--rp-purple2:#7c3aed;
 }
 
-/* dark mode: support html[data-theme="dark"] AND body.dark-theme */
 html[data-theme="dark"] body.page-reports,
 body.dark-theme.page-reports{
   --rp-bg: #0b1220;
@@ -2775,16 +2704,6 @@ body.dark-theme.page-reports{
   --rp-muted: rgba(255,255,255,0.65);
   --rp-shadow: 0 14px 40px rgba(0,0,0,0.35);
 }
-
-/* =========================================================
-   REPORTS FINAL (NO DUPLICATES) ✅
-   Scope: body.page-reports only
-   - Sidebar fixed
-   - Right side scrolls (#reportsContent)
-   - Reports fills the remaining screen width
-   - Fullscreen Generate modal covers sidebar too
-   - Colored bars + dark mode support
-========================================================= */
 
 /* ---------- Layout (Reports only) ---------- */
 body.page-reports{
@@ -2811,8 +2730,8 @@ body.page-reports .dashboard-container > .sidebar{
 /* Right content fills remaining viewport width */
 body.page-reports .dashboard-container > #reportsContent{
   position: relative;
-  margin-left: 280px;                 /* MUST match sidebar width */
-  width: calc(100vw - 280px);         /* ✅ KEY: fill remaining width */
+  margin-left: 280px;
+  width: calc(100vw - 280px);
   max-width: none !important;
 
   height: 100vh;
@@ -2825,7 +2744,6 @@ body.page-reports .dashboard-container > #reportsContent{
   scrollbar-gutter: stable;
 }
 
-/* remove any centering caps (if old rules existed) */
 body.page-reports #reportsContent > .content-header,
 body.page-reports #reportsContent > .reports-range,
 body.page-reports #reportsContent > .reports-kpi,
@@ -2836,7 +2754,6 @@ body.page-reports #reportsContent > .reports-grid{
   margin-right: 0 !important;
 }
 
-/* Mobile */
 @media (max-width: 900px){
   body.page-reports{
     height: auto;
@@ -3087,11 +3004,6 @@ body.page-reports #generateReportModal .modal-actions button{
 body.page-reports #generateReportModal .modal-actions .btn-secondary{ min-width: 180px; }
 body.page-reports #generateReportModal .modal-actions .btn-primary{ min-width: 220px; }
 
-/* =========================================================
-   REPORTS COLOR UPGRADE (Reports only) ✅
-========================================================= */
-
-/* Tracks slightly clearer */
 body.page-reports .bar-track,
 body.page-reports .cat-track{
   background: rgba(255,255,255,0.10);
@@ -3156,11 +3068,6 @@ html[data-theme="dark"] body.page-reports .badge-export{ background: rgba(239,68
 html[data-theme="dark"] body.page-reports .badge-low{    background: rgba(245,158,11,.18); color:#fde68a; border-color: rgba(245,158,11,.25); }
 html[data-theme="dark"] body.page-reports .badge-out{    background: rgba(244,63,94,.20);  color:#fecdd3; border-color: rgba(244,63,94,.28); }
 
-/* =========================================================
-   KPI number color fallback (Reports only) ✅ no HTML changes
-   Order: 1 Total, 2 Stock In, 3 Stock Out, 4 Net Change
-========================================================= */
-
 /* Light */
 html[data-theme="light"] body.page-reports .reports-kpi .kpi-card:nth-child(2) .kpi-value{ color:#2563eb !important; }
 html[data-theme="light"] body.page-reports .reports-kpi .kpi-card:nth-child(3) .kpi-value{ color:#b91c1c !important; }
@@ -3171,15 +3078,6 @@ html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(2) .k
 html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(3) .kpi-value{ color:#fca5a5 !important; }
 html[data-theme="dark"] body.page-reports .reports-kpi .kpi-card:nth-child(4) .kpi-value{ color:#5eead4 !important; }
 
-/* =========================================================
-   REPORTS PATCH (put at VERY BOTTOM)
-   Fix:
-   1) Stock Movement + Category fill bars not showing
-   2) Low Stock Alert item boxes missing
-   Works with body.dark-theme + body.page-reports
-========================================================= */
-
-/* ---------- 1) Force tracks to be normal block containers ---------- */
 body.page-reports .bar-track,
 body.page-reports .cat-track{
   position: relative !important;
@@ -3189,7 +3087,6 @@ body.page-reports .cat-track{
   overflow: hidden !important;
 }
 
-/* ✅ The key: force the first child inside track to be the fill bar */
 body.page-reports .bar-track > *:first-child,
 body.page-reports .cat-track > *:first-child{
   display: block !important;
@@ -3198,7 +3095,6 @@ body.page-reports .cat-track > *:first-child{
   min-width: 0 !important;
 }
 
-/* If your HTML uses .bar-fill / .cat-fill, also enforce */
 body.page-reports .bar-fill,
 body.page-reports .cat-fill{
   display: block !important;
@@ -3206,8 +3102,6 @@ body.page-reports .cat-fill{
   border-radius: 999px !important;
 }
 
-/* ---------- 1A) Colors (dark-theme version) ---------- */
-/* Stock Movement: 1=Import, 2=Export, 3=Net */
 body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-track > *:first-child,
 body.dark-theme.page-reports .mini-bars .bar-row:nth-child(1) .bar-fill{
   background: linear-gradient(90deg, #60a5fa, #2563eb) !important;
@@ -3221,13 +3115,11 @@ body.dark-theme.page-reports .mini-bars .bar-row:nth-child(3) .bar-fill{
   background: linear-gradient(90deg, #5eead4, #0f766e) !important;
 }
 
-/* Category bar fill */
 body.dark-theme.page-reports .cat-track > *:first-child,
 body.dark-theme.page-reports .cat-fill{
   background: linear-gradient(90deg, #a78bfa, #7c3aed) !important;
 }
 
-/* ---------- 1B) If your fill exists but width becomes 0 due to CSS, stop flex shrink ---------- */
 body.page-reports .bar-track > *:first-child,
 body.page-reports .cat-track > *:first-child,
 body.page-reports .bar-fill,
@@ -3236,8 +3128,6 @@ body.page-reports .cat-fill{
   flex-shrink: 0 !important;
 }
 
-/* ---------- 2) Restore Low Stock Alert item boxes ---------- */
-/* Try to match multiple possible wrappers without changing HTML */
 body.page-reports .lowstock-item,
 body.page-reports .low-stock-item,
 body.page-reports .lowstock-list > *{
@@ -3249,33 +3139,27 @@ body.page-reports .lowstock-list > *{
   padding: 12px 14px !important;
   border-radius: 14px !important;
 
-  background: rgba(255,255,255,0.06) !important;          /* dark-friendly */
+  background: rgba(255,255,255,0.06) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
 }
 
-/* Low stock list spacing (if container exists) */
 body.page-reports .lowstock-list,
 body.page-reports .low-stock-list{
   display: grid !important;
   gap: 12px !important;
 }
 
-/* Badge position inside Low Stock: keep badge on the right */
 body.page-reports .lowstock-item .badge,
 body.page-reports .low-stock-item .badge{
   margin-left: auto !important;
 }
 
-/* ---------- 3) Category % color (in case your HTML doesn't use .category-list) ---------- */
-/* fallback: inside Inventory by Category card, any row last column */
 body.dark-theme.page-reports .report-card .cat-row > :last-child{
   font-weight: 900 !important;
 }
 
 /* =========================================================
-   INVENTORY: Top Actions Buttons Fix (Add / Import / Export)
-   Scope: inventory page only (uses #inventoryContent)
-   Put this at the VERY BOTTOM of styles.css
+   INVENTORY
 ========================================================= */
 
 /* 1) Topbar layout: search left, buttons right */
@@ -3284,7 +3168,7 @@ body.dark-theme.page-reports .report-card .cat-row > :last-child{
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  flex-wrap: wrap; /* 小屏自动换行 */
+  flex-wrap: wrap;
 }
 
 /* 2) Buttons container */
@@ -3297,7 +3181,6 @@ body.dark-theme.page-reports .report-card .cat-row > :last-child{
   min-width: fit-content;
 }
 
-/* ✅ 强制按钮不会被“全局 CSS”隐藏 */
 #inventoryContent .top-actions button,
 #inventoryContent .top-actions .btn,
 #inventoryContent .top-actions .action-btn{
@@ -3314,7 +3197,6 @@ body.dark-theme.page-reports .report-card .cat-row > :last-child{
   white-space: nowrap;
 }
 
-/* 3) Make Import/Export match Add New shape */
 #inventoryContent .top-actions .action-btn{
   padding: 10px 16px !important;
   border-radius: 10px !important;
