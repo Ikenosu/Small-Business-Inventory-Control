@@ -456,6 +456,8 @@ function wireGenerateReportUI() {
     if (!pdfRoot) return;
 
     pdfRoot.innerHTML = buildPdfHtml(type, productsCache, imports, exports, currentRange);
+    pdfRoot.classList.add('pdf-light');
+    pdfRoot.classList.remove('dark-theme');
     pdfRoot.style.background = '#ffffff';
     pdfRoot.style.color = '#0f172a';
 

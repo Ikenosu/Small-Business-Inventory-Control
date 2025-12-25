@@ -3224,7 +3224,6 @@ body.dark-theme.page-reports .report-card .cat-row > :last-child{
    Recent Activity -> match Low Stock Alert cards + scroll
 ========================= */
 
-/* 1) 每一条 Recent Activity item 变成同款卡片 */
 body.page-reports .recent-activity-item,
 body.page-reports .activity-item,
 body.page-reports .recent-item,
@@ -3243,7 +3242,6 @@ body.page-reports .recent-list > *{
   border: 1px solid var(--rp-border) !important;
 }
 
-/* 2) Recent Activity list 容器可滚动（跟 Low Stock 一样） */
 body.page-reports .recent-activity-list,
 body.page-reports .activity-list,
 body.page-reports .recent-list{
@@ -3254,6 +3252,44 @@ body.page-reports .recent-list{
   overflow-y: auto !important;
 }
 
+/* =========================================================
+   PDF ROOT: force light styles (works for html2pdf)
+========================================================= */
+#pdfRoot.pdf-light,
+#pdfRoot.pdf-light *{
+  color: #000000 !important;
+}
+
+#pdfRoot.pdf-light{
+  background: #ffffff !important;
+}
+
+#pdfRoot.pdf-light .report-card,
+#pdfRoot.pdf-light .kpi-card,
+#pdfRoot.pdf-light .lowstock-item,
+#pdfRoot.pdf-light .low-stock-item,
+#pdfRoot.pdf-light table,
+#pdfRoot.pdf-light th,
+#pdfRoot.pdf-light td{
+  background: #ffffff !important;
+  border-color: #d1d5db !important;
+}
+
+/* muted text also black so it’s readable in PDF */
+#pdfRoot.pdf-light .muted,
+#pdfRoot.pdf-light .mini-note,
+#pdfRoot.pdf-light p,
+#pdfRoot.pdf-light span{
+  color: #000000 !important;
+}
+
+/* badges readable */
+#pdfRoot.pdf-light .badge,
+#pdfRoot.pdf-light .badge-pill{
+  background: #f3f4f6 !important;
+  color: #000000 !important;
+  border: 1px solid #d1d5db !important;
+}
 
 /* =========================================================
    INVENTORY
