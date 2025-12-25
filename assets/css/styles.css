@@ -3304,3 +3304,37 @@ body.dark-theme .product-card:hover{
   background-color: #111827 !important;     /* you already use this hover color */
   box-shadow: 0 14px 28px rgba(0,0,0,0.35) !important;
 }
+
+body.dark-theme .sort-box .sort-label {
+  color: #cbd5e1;
+}
+
+body.dark-theme .sort-select {
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color-scheme: dark; /* helps the native dropdown menu render dark in many browsers */
+}
+
+body.dark-theme .sort-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Dropdown options (works in many browsers; some OS/browser combos limit styling) */
+body.dark-theme .sort-select option {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-theme .sort-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
