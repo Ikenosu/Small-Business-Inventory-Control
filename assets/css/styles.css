@@ -3068,10 +3068,30 @@ body.page-reports .mini-bars .bar-row:nth-child(3) .bar-track > *:first-child{
   background: linear-gradient(90deg, #5eead4, #0f766e) !important; /* Net */
 }
 
-/* ---- Category bar color ---- */
-body.page-reports .cat-fill,
-body.page-reports .cat-track > *:first-child{
-  background: linear-gradient(90deg, #a78bfa, #7c3aed) !important;
+/* ---- Category bar color (match % by row) ---- */
+body.page-reports .category-list .cat-row:nth-child(1) .cat-fill,
+body.page-reports .category-list .cat-row:nth-child(1) .cat-track > *:first-child{
+  background: linear-gradient(90deg, #a78bfa, #7c3aed) !important; /* Furniture */
+}
+
+body.page-reports .category-list .cat-row:nth-child(2) .cat-fill,
+body.page-reports .category-list .cat-row:nth-child(2) .cat-track > *:first-child{
+  background: linear-gradient(90deg, #93c5fd, #2563eb) !important; /* Office */
+}
+
+body.page-reports .category-list .cat-row:nth-child(3) .cat-fill,
+body.page-reports .category-list .cat-row:nth-child(3) .cat-track > *:first-child{
+  background: linear-gradient(90deg, #5eead4, #0f766e) !important; /* Other */
+}
+
+body.page-reports .category-list .cat-row:nth-child(4) .cat-fill,
+body.page-reports .category-list .cat-row:nth-child(4) .cat-track > *:first-child{
+  background: linear-gradient(90deg, rgba(15,23,42,0.18), rgba(15,23,42,0.35)) !important; /* Electronics */
+}
+
+html[data-theme="dark"] body.page-reports .category-list .cat-row:nth-child(4) .cat-fill,
+html[data-theme="dark"] body.page-reports .category-list .cat-row:nth-child(4) .cat-track > *:first-child{
+  background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.32)) !important;
 }
 
 /* ---- Category % numbers (right side) ---- */
@@ -3178,14 +3198,17 @@ body.page-reports .lowstock-list > *{
   padding: 12px 14px !important;
   border-radius: 14px !important;
 
-  background: rgba(255,255,255,0.06) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  background: var(--rp-card) !important;
+  border: 1px solid var(--rp-border) !important;
 }
 
 body.page-reports .lowstock-list,
 body.page-reports .low-stock-list{
   display: grid !important;
   gap: 12px !important;
+
+  max-height: 360px;
+  overflow-y: auto !important;
 }
 
 body.page-reports .lowstock-item .badge,
@@ -3196,6 +3219,41 @@ body.page-reports .low-stock-item .badge{
 body.dark-theme.page-reports .report-card .cat-row > :last-child{
   font-weight: 900 !important;
 }
+
+/* =========================
+   Recent Activity -> match Low Stock Alert cards + scroll
+========================= */
+
+/* 1) 每一条 Recent Activity item 变成同款卡片 */
+body.page-reports .recent-activity-item,
+body.page-reports .activity-item,
+body.page-reports .recent-item,
+body.page-reports .recent-activity-list > *,
+body.page-reports .activity-list > *,
+body.page-reports .recent-list > *{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+
+  background: var(--rp-card) !important;
+  border: 1px solid var(--rp-border) !important;
+}
+
+/* 2) Recent Activity list 容器可滚动（跟 Low Stock 一样） */
+body.page-reports .recent-activity-list,
+body.page-reports .activity-list,
+body.page-reports .recent-list{
+  display: grid !important;
+  gap: 12px !important;
+
+  max-height: 360px;
+  overflow-y: auto !important;
+}
+
 
 /* =========================================================
    INVENTORY
